@@ -1,11 +1,13 @@
 package com.oscar.estatehubcompose.core.DI
 
+import com.oscar.estatehubcompose.login.data.network.LoginClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 
@@ -21,5 +23,11 @@ class NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     };
+
+    @Provides
+    @Singleton
+    fun provideLoginClient(retrofit: Retrofit): LoginClient{
+        return retrofit.create(LoginClient::class.java)
+    }
 };
 
