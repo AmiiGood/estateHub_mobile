@@ -66,4 +66,5 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
     implementation("androidx.compose.material:material-icons-extended:1.4.3")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 }

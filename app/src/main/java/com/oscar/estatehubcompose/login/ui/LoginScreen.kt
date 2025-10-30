@@ -44,19 +44,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.oscar.estatehubcompose.ui.theme.Parkinsans
 import com.oscar.estatehubcompose.ui.theme.PrimaryPersonalized
 import com.oscar.estatehubcompose.ui.theme.SecondaryPersonalized
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel){
+fun LoginScreen(loginViewModel: LoginViewModel, navController: NavController){
 
-    LoginScreenContainer(Modifier, loginViewModel);
+    LoginScreenContainer(Modifier, loginViewModel, navController);
 
 }
 
 @Composable
-fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel, ){
+fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel,navController: NavController ){
 
     var passwordViewState by rememberSaveable { mutableStateOf(false)};
     val correo by loginViewModel.correo.observeAsState(initial = "");
@@ -143,7 +144,9 @@ fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel, ){
         }
         Spacer(Modifier.padding(10.dp));
 
-        Button(onClick = {},
+        Button(onClick = {
+            navController.navigate("home");
+        },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
