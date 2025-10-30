@@ -2,6 +2,7 @@ package com.oscar.estatehubcompose.login.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,21 +11,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AppRegistration
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,24 +49,25 @@ import com.oscar.estatehubcompose.ui.theme.PrimaryPersonalized
 import com.oscar.estatehubcompose.ui.theme.SecondaryPersonalized
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(loginViewModel: LoginViewModel){
 
-    Column {
-        PreviewLoginScreen();
-    }
+    LoginScreenContainer(Modifier, loginViewModel);
 
 }
 
 @Composable
-@Preview(showBackground = true)
-fun PreviewLoginScreen(){
+fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel, ){
+
+    var passwordViewState by rememberSaveable { mutableStateOf(false)};
+    val correo by loginViewModel.correo.observeAsState(initial = "");
+    val password by loginViewModel.contrasenia.observeAsState(initial = "");
     Column(Modifier.fillMaxSize().padding(25.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
 
         Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()){
 
-            Text("Iniciar sesion",
+            Text("Iniciar sesión",
                 style = TextStyle(fontSize = 40.sp,
                     fontFamily = Parkinsans,
                     fontWeight = FontWeight.Bold),
@@ -69,20 +85,52 @@ fun PreviewLoginScreen(){
 
         }
         Spacer(Modifier.padding(5.dp));
-        OutlinedTextField(value = "",
-            onValueChange = {},
+        OutlinedTextField(value = correo,
+            onValueChange = {
+                loginViewModel.setCorreo(it)
+            },
+            textStyle = TextStyle(fontSize = 13.sp,
+                fontFamily = Parkinsans,
+                fontWeight = FontWeight.Medium),
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.fillMaxWidth().height(53.dp),
+
             placeholder = {
-            Text("Correo electronico")});
+            if (correo == "") Text("Correo electronico",style = TextStyle(fontSize = 13.sp,
+                fontFamily = Parkinsans,
+                fontWeight = FontWeight.Medium),)
+            else Text(correo,style = TextStyle(fontSize = 13.sp,
+                fontFamily = Parkinsans,
+                fontWeight = FontWeight.Medium),)}
+        );
 
         Spacer(Modifier.padding(5.dp));
-        OutlinedTextField(value = "",
-            onValueChange = {},
+        OutlinedTextField(value = password,
+            onValueChange = {
+                loginViewModel.setContrasenia(it)
+            },
+            textStyle = TextStyle(fontSize = 13.sp,
+                fontFamily = Parkinsans,
+                fontWeight = FontWeight.Medium),
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.fillMaxWidth().height(53.dp),
+            visualTransformation = if (passwordViewState) VisualTransformation.None else PasswordVisualTransformation(),
+            leadingIcon = {
+                IconButton(onClick = {
+                    passwordViewState = !passwordViewState
+                },
+                ) {
+                    Icon(imageVector = if(passwordViewState) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = "Ver contraseña", tint = MaterialTheme.colorScheme.primary);
+                }
+            },
             placeholder = {
-            Text("Contraseña")
+                Row(Modifier.fillMaxWidth()) {
+                    Text("Contraseña",style = TextStyle(fontSize = 13.sp,
+                        fontFamily = Parkinsans,
+                        fontWeight = FontWeight.Medium),)
+                }
+
         })
 
         Spacer(Modifier.padding(5.dp));
@@ -133,7 +181,13 @@ fun PreviewLoginScreen(){
         OutlinedButton(onClick = {},
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.padding(5.dp).fillMaxWidth().height(53.dp)) {
-            Text("Registrarse")
+
+            Row(verticalAlignment = Alignment.CenterVertically){
+                Icon(imageVector = Icons.Filled.AppRegistration,
+                    contentDescription = "Registrarse", tint = MaterialTheme.colorScheme.primary);
+                Text("Registrarse")
+            }
+
         }
 
 
