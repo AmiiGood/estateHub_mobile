@@ -9,12 +9,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddHome
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -89,9 +93,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Navbar(navController: NavController){
         var selectedItem by rememberSaveable { mutableStateOf(0) }
-        val items = listOf("home");
-        val selectedIcons = listOf(Icons.Filled.Home)
-        val unselectedIcons = listOf(Icons.Filled.Home)
+        val items = listOf("home", "Analisis", "Mercado","Perfil");
+        val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
+        val unselectedIcons = listOf(Icons.Filled.Home,Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
 
 
         NavigationBar(modifier = Modifier,
@@ -100,13 +104,22 @@ class MainActivity : ComponentActivity() {
 
             items.forEachIndexed { index, item  ->
                 NavigationBarItem(
-                    icon = { Icon( if(selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item) },
+                    icon = {
+                        Icon( if(selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item)
+                           },
                 label = {Text(item)},
                     selected = selectedItem == index,
                     onClick = {
                         selectedItem = index
                         navController.navigate(item)
-                    })
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        indicatorColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                        unselectedTextColor = MaterialTheme.colorScheme.onPrimary
+                    ))
             }
 
         }
