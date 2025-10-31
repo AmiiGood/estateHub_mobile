@@ -35,6 +35,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.oscar.estatehubcompose.analisis.ui.AnalisisScreen
 import com.oscar.estatehubcompose.home.ui.Home
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
@@ -86,6 +87,9 @@ class MainActivity : ComponentActivity() {
             composable("home"){
                 Home()
             }
+            composable("analisis"){
+                AnalisisScreen(modifier)
+            }
         }
 
     }
@@ -93,7 +97,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Navbar(navController: NavController){
         var selectedItem by rememberSaveable { mutableStateOf(0) }
-        val items = listOf("home", "Analisis", "Mercado","Perfil");
+        val items = listOf("home", "analisis", "Mercado","Perfil");
         val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
         val unselectedIcons = listOf(Icons.Filled.Home,Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
 
