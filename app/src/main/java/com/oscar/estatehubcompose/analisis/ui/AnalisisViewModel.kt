@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
 import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
 import com.oscar.estatehubcompose.analisis.domain.AnalisisUseCase
-import com.oscar.estatehubcompose.models.DireccionData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
