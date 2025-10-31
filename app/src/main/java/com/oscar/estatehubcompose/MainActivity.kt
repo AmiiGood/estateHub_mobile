@@ -38,6 +38,8 @@ import androidx.navigation.compose.rememberNavController
 import com.oscar.estatehubcompose.home.ui.Home
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
+import com.oscar.estatehubcompose.register.ui.RegisterScreen
+import com.oscar.estatehubcompose.register.ui.RegisterViewModel
 import com.oscar.estatehubcompose.ui.theme.EstateHubComposeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -46,13 +48,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val loginViewModel: LoginViewModel by viewModels();
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val registerViewModel: RegisterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
             //Declaramos la barra de navegacion
             val navController = rememberNavController();
             //Creamos un arreglo con los componentes donde no estara la barra de navegacion
@@ -63,31 +65,45 @@ class MainActivity : ComponentActivity() {
             val rutactual = currentBackStackEntry?.destination?.route
             //Verifica que la ruta no este dentro de el arreglo noMenu
             val mostrarNavegacion= rutactual !in noMenu;
+
             EstateHubComposeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-                    if(mostrarNavegacion) {
-                        Navbar(navController)
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        if(mostrarNavegacion) {
+                            Navbar(navController)
+                        }
                     }
-                }) { innerPadding ->
-
+                ) { innerPadding ->
                     AppNavigation(Modifier.padding(innerPadding), navController)
-
                 }
             }
         }
     }
+
     @Composable
     fun AppNavigation(modifier: Modifier, navHostController: NavHostController){
-
         NavHost(navHostController, "login", Modifier) {
             composable("login"){
-                LoginScreen(loginViewModel = loginViewModel, navController = navHostController)
+                LoginScreen(
+                    loginViewModel = loginViewModel,
+                    navController = navHostController
+                )
+            }
+            composable("registro"){
+                RegisterScreen(
+                    viewModel = registerViewModel,
+                    onNavigateToLogin = {
+                        navHostController.navigate("login") {
+                            popUpTo("login") { inclusive = false }
+                        }
+                    }
+                )
             }
             composable("home"){
                 Home()
             }
         }
-
     }
 
     @Composable

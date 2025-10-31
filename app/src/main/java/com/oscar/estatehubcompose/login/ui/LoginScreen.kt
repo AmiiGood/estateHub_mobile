@@ -181,16 +181,21 @@ fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel,navC
         }
 
         Spacer(Modifier.padding(10.dp));
-        OutlinedButton(onClick = {},
+        OutlinedButton(
+            onClick = {
+                navController.navigate("registro")
+            },
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(5.dp).fillMaxWidth().height(53.dp)) {
-
+            modifier = Modifier.padding(5.dp).fillMaxWidth().height(53.dp)
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically){
-                Icon(imageVector = Icons.Filled.AppRegistration,
-                    contentDescription = "Registrarse", tint = MaterialTheme.colorScheme.primary);
+                Icon(
+                    imageVector = Icons.Filled.AppRegistration,
+                    contentDescription = "Registrarse",
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Text("Registrarse")
             }
-
         }
 
 
