@@ -1,6 +1,7 @@
 package com.oscar.estatehubcompose.login.data.network
 
 import android.util.Log
+import com.oscar.estatehubcompose.helpers.DataStoreManager
 import com.oscar.estatehubcompose.login.data.network.request.LoginRequest
 import com.oscar.estatehubcompose.login.data.network.response.LoginResponse
 import kotlinx.coroutines.Dispatchers
@@ -8,7 +9,8 @@ import kotlinx.coroutines.withContext
 import okio.IOException
 import javax.inject.Inject
 
-class LoginService @Inject constructor(private val loginClient: LoginClient){
+class LoginService @Inject constructor(private val loginClient: LoginClient,
+                                       private val dataStoreManager: DataStoreManager){
 
 
     suspend fun login(loginRequest: LoginRequest): Result<LoginResponse?>{
@@ -19,7 +21,9 @@ class LoginService @Inject constructor(private val loginClient: LoginClient){
                 val response = loginClient.login(loginRequest);
 
                 if(response.isSuccessful && response.body() != null){
+                    dataStoreManager.guardarToken(response.body()!!.token);
                     Result.success(response.body());
+
                 }else{
                     val errorMsg = when (response.code()) {
                         401 -> "Credenciales inválidas"

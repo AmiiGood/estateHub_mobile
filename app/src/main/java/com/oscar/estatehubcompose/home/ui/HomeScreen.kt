@@ -9,7 +9,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun Home(){
+fun Home(homeViewModel: HomeViewModel){
 
     val permisos = rememberMultiplePermissionsState(
         listOf(
@@ -18,7 +18,10 @@ fun Home(){
         )
     )
 
+
+
     LaunchedEffect(Unit) {
+
         if(!permisos.allPermissionsGranted){
             permisos.launchMultiplePermissionRequest();
         }

@@ -37,6 +37,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.oscar.estatehubcompose.analisis.ui.AnalisisScreen
 import com.oscar.estatehubcompose.home.ui.Home
+import com.oscar.estatehubcompose.home.ui.HomeViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
 import com.oscar.estatehubcompose.ui.theme.EstateHubComposeTheme
@@ -48,6 +49,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels();
+    private val homeViewModel: HomeViewModel by viewModels();
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +87,7 @@ class MainActivity : ComponentActivity() {
                 LoginScreen(loginViewModel = loginViewModel, navController = navHostController)
             }
             composable("home"){
-                Home()
+                Home(homeViewModel = homeViewModel)
             }
             composable("analisis"){
                 AnalisisScreen(modifier)

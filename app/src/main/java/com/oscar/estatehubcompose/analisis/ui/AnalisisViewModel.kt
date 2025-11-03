@@ -1,17 +1,20 @@
 package com.oscar.estatehubcompose.analisis.ui
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
 import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
 import com.oscar.estatehubcompose.analisis.domain.AnalisisUseCase
+import com.oscar.estatehubcompose.helpers.DataStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AnalisisViewModel @Inject constructor(private val analisisUseCase: AnalisisUseCase): ViewModel(){
+class AnalisisViewModel @Inject constructor(private val analisisUseCase: AnalisisUseCase,
+    private val dataStoreManager: DataStoreManager): ViewModel(){
 
 
     private var _data = MutableLiveData<AnalisisResponse?>();
@@ -27,6 +30,8 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
     fun setCodigoPostal(codigoPostal: Int){
         _codigoPostal.value = codigoPostal;
     }
+
+
 
 
     fun getData(latitud: Double, longitud: Double, codigo_postal: Int){
