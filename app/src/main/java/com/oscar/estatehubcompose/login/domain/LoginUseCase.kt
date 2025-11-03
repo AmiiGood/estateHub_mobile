@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(private val loginRepository: LoginRepository) {
 
-    suspend operator fun invoke(loginRequest: LoginRequest): LoginResponse?{
-        var loginResponse = loginRepository.login(loginRequest);
+    suspend operator fun invoke(loginRequest: LoginRequest): Result<LoginResponse?>{
+        val loginResponse = loginRepository.login(loginRequest);
         return loginResponse;
     };
 }

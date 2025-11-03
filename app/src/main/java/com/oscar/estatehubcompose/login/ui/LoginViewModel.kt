@@ -1,5 +1,6 @@
 package com.oscar.estatehubcompose.login.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -32,9 +33,10 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
     fun onLogin(user: String, password: String){
         val loginRequest: LoginRequest = LoginRequest(user, password);
-
         viewModelScope.launch {
             val response = loginUseCase.invoke(loginRequest);
+            Log.i("OSCAR", response.toString());
+
         }
     };
 }

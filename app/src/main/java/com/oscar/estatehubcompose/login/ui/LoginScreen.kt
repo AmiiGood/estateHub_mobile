@@ -62,6 +62,7 @@ fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel,navC
     var passwordViewState by rememberSaveable { mutableStateOf(false)};
     val correo by loginViewModel.correo.observeAsState(initial = "");
     val password by loginViewModel.contrasenia.observeAsState(initial = "");
+
     Column(Modifier.fillMaxSize().padding(25.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
@@ -145,7 +146,9 @@ fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel,navC
         Spacer(Modifier.padding(10.dp));
 
         Button(onClick = {
-            navController.navigate("home");
+
+            loginViewModel.onLogin(correo, password);
+
         },
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
