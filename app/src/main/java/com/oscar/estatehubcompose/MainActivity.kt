@@ -40,6 +40,8 @@ import com.oscar.estatehubcompose.home.ui.Home
 import com.oscar.estatehubcompose.home.ui.HomeViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
+import com.oscar.estatehubcompose.register.ui.RegisterScreen
+import com.oscar.estatehubcompose.register.ui.RegisterViewModel
 import com.oscar.estatehubcompose.ui.theme.EstateHubComposeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -50,12 +52,12 @@ class MainActivity : ComponentActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels();
     private val homeViewModel: HomeViewModel by viewModels();
+    private val registerViewModel: RegisterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
             //Declaramos la barra de navegacion
             val navController = rememberNavController();
             //Creamos un arreglo con los componentes donde no estara la barra de navegacion
@@ -74,17 +76,18 @@ class MainActivity : ComponentActivity() {
                 }) { innerPadding ->
 
                     AppNavigation(Modifier.padding(innerPadding), navController)
-
                 }
             }
         }
     }
     @Composable
     fun AppNavigation(modifier: Modifier, navHostController: NavHostController){
-
         NavHost(navHostController, "login", Modifier) {
             composable("login"){
                 LoginScreen(loginViewModel = loginViewModel, navController = navHostController)
+            }
+            composable("registro"){
+                RegisterScreen(registerViewModel = registerViewModel, navController = navHostController)
             }
             composable("home"){
                 Home(modifier, homeViewModel = homeViewModel)
@@ -93,7 +96,6 @@ class MainActivity : ComponentActivity() {
                 AnalisisScreen(modifier)
             }
         }
-
     }
 
     @Composable

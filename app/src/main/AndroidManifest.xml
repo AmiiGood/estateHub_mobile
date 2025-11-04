@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -21,12 +24,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.EstateHubCompose"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31"
+        tools:ignore="UnusedAttribute"
+        >
 
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value=""></meta-data>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="APIKEY"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

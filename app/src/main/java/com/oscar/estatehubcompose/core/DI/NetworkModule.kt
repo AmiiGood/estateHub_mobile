@@ -2,6 +2,7 @@ package com.oscar.estatehubcompose.core.DI
 
 import com.oscar.estatehubcompose.analisis.data.network.AnalisisClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
+import com.oscar.estatehubcompose.register.data.network.RegisterClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,6 +30,12 @@ class NetworkModule {
     @Singleton
     fun provideLoginClient(retrofit: Retrofit): LoginClient{
         return retrofit.create(LoginClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRegisterClient(retrofit: Retrofit): RegisterClient {
+        return retrofit.create(RegisterClient::class.java)
     }
 
     @Provides
