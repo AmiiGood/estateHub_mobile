@@ -15,7 +15,9 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor(private val registerUseCase: RegisterUseCase) : ViewModel() {
+class RegisterViewModel @Inject constructor(
+    private val registerUseCase: RegisterUseCase
+) : ViewModel() {
 
     private var _email = MutableLiveData<String>()
     private var _password = MutableLiveData<String>()
@@ -78,7 +80,6 @@ class RegisterViewModel @Inject constructor(private val registerUseCase: Registe
     }
 
     fun setTelefono(telefono: String) {
-        // Solo permitir números
         if (telefono.all { it.isDigit() } || telefono.isEmpty()) {
             _telefono.value = telefono
             validateTelefono(telefono)
@@ -141,7 +142,6 @@ class RegisterViewModel @Inject constructor(private val registerUseCase: Registe
         }
     }
 
-    // Validar todos los campos antes de registrar
     private fun validateAllFields(
         email: String,
         password: String,
@@ -187,8 +187,8 @@ class RegisterViewModel @Inject constructor(private val registerUseCase: Registe
 
         _isLoading.value = true
         _errorMessage.value = ""
+        _registerSuccess.value = false
 
-        // Generar fecha actual en formato yyyy-MM-dd
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val fechaRegistro = dateFormat.format(Date())
 
@@ -206,21 +206,63 @@ class RegisterViewModel @Inject constructor(private val registerUseCase: Registe
 
         viewModelScope.launch {
             try {
-                val response = registerUseCase.invoke(registerRequest)
+                val (response, statusCode) = registerUseCase.invoke(registerRequest)
                 _isLoading.value = false
 
-                if (response != null) {
-                    _registerSuccess.value = true
-                    _errorMessage.value = ""
-                } else {
-                    _registerSuccess.value = false
-                    _errorMessage.value = response?.message ?: "Error al registrar usuario"
+                when (statusCode) {
+                    200 -> {
+                        // Registro exitoso
+                        _registerSuccess.value = true
+                        _errorMessage.value = ""
+                    }
+                    400 -> {
+                        // Campos requeridos faltantes o vacíos
+                        _registerSuccess.value = false
+                        _errorMessage.value = "${response?.message ?: "Campos requeridos faltantes o vacíos"}"
+                    }
+                    409 -> {
+                        // El correo ya está registrado
+                        _registerSuccess.value = false
+                        _errorMessage.value = "${response?.message ?: "El correo ya está registrado"}"
+                    }
+                    500 -> {
+                        // Error en el servidor
+                        _registerSuccess.value = false
+                        _errorMessage.value = "${response?.message ?: "Error al registrar el usuario"}"
+                    }
+                    else -> {
+                        _registerSuccess.value = false
+                        _errorMessage.value = "Error desconocido: ${response?.message ?: "Intenta de nuevo"}"
+                    }
                 }
+            } catch (e: retrofit2.HttpException) {
+                _isLoading.value = false
+                _registerSuccess.value = false
+
+                _errorMessage.value = when (e.code()) {
+                    400 -> "Campos requeridos faltantes o vacíos"
+                    409 -> "El correo ya está registrado"
+                    500 -> "Error en el servidor. Intenta más tarde"
+                    else -> "Error de conexión: ${e.message()}"
+                }
+            } catch (e: java.net.UnknownHostException) {
+                _isLoading.value = false
+                _registerSuccess.value = false
+                _errorMessage.value = "No hay conexión a internet"
+            } catch (e: java.net.SocketTimeoutException) {
+                _isLoading.value = false
+                _registerSuccess.value = false
+                _errorMessage.value = "Tiempo de espera agotado. Intenta de nuevo"
             } catch (e: Exception) {
                 _isLoading.value = false
                 _registerSuccess.value = false
-                _errorMessage.value = "Error de conexión: ${e.message}"
+                _errorMessage.value = "Error inesperado: ${e.message}"
             }
         }
+    }
+
+    fun clearMessages() {
+        _errorMessage.value = ""
+        _registerSuccess.value = false
     }
 }

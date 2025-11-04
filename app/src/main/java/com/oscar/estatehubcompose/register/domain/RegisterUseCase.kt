@@ -7,8 +7,7 @@ import javax.inject.Inject
 
 class RegisterUseCase @Inject constructor(private val registerRepository: RegisterRepository) {
 
-    suspend operator fun invoke(registerRequest: RegisterRequest): RegisterResponse? {
-        val registerResponse = registerRepository.register(registerRequest)
-        return registerResponse
+    suspend operator fun invoke(registerRequest: RegisterRequest): Pair<RegisterResponse?, Int?> {
+        return registerRepository.register(registerRequest)
     }
 }

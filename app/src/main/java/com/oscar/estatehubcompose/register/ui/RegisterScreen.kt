@@ -1,5 +1,6 @@
 package com.oscar.estatehubcompose.register.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -46,8 +49,11 @@ import com.oscar.estatehubcompose.ui.theme.Parkinsans
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
-    onNavigateToLogin: () -> Unit = {}
+    onNavigateToLogin: () -> Unit = {},
+    onRegisterSuccess: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+
     val email by viewModel.email.observeAsState("")
     val password by viewModel.password.observeAsState("")
     val nombre by viewModel.nombre.observeAsState("")
@@ -64,6 +70,27 @@ fun RegisterScreen(
     val apellidoPaternoError by viewModel.apellidoPaternoError.observeAsState("")
     val apellidoMaternoError by viewModel.apellidoMaternoError.observeAsState("")
     val telefonoError by viewModel.telefonoError.observeAsState("")
+
+    LaunchedEffect(registerSuccess) {
+        if (registerSuccess) {
+            Toast.makeText(
+                context,
+                "Usuario registrado exitosamente",
+                Toast.LENGTH_LONG
+            ).show()
+            onRegisterSuccess()
+        }
+    }
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage.isNotEmpty()) {
+            Toast.makeText(
+                context,
+                errorMessage,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     RegisterScreenContent(
         email = email,
@@ -319,32 +346,6 @@ fun RegisterScreenContent(
         }
 
         Spacer(Modifier.padding(10.dp))
-
-        if (errorMessage.isNotEmpty() && !registerSuccess) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Parkinsans,
-                    fontWeight = FontWeight.Medium
-                ),
-                modifier = Modifier.padding(vertical = 5.dp)
-            )
-        }
-
-        if (registerSuccess) {
-            Text(
-                text = "✓ Registro exitoso",
-                color = MaterialTheme.colorScheme.primary,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Parkinsans,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.padding(vertical = 5.dp)
-            )
-        }
 
         Button(
             onClick = onRegisterClick,
