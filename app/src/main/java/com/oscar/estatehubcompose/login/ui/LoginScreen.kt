@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.Visibility
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -109,6 +111,7 @@ fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel,navC
             onValueChange = {
                 loginViewModel.setCorreo(it)
             },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             textStyle = TextStyle(fontSize = 13.sp,
                 fontFamily = Parkinsans,
                 fontWeight = FontWeight.Medium),
@@ -129,6 +132,7 @@ fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel,navC
             onValueChange = {
                 loginViewModel.setContrasenia(it)
             },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             textStyle = TextStyle(fontSize = 13.sp,
                 fontFamily = Parkinsans,
                 fontWeight = FontWeight.Medium),
