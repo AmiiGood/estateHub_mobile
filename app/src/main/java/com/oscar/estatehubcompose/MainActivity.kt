@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                 LoginScreen(loginViewModel = loginViewModel, navController = navHostController)
             }
             composable("home"){
-                Home(homeViewModel = homeViewModel)
+                Home(modifier, homeViewModel = homeViewModel)
             }
             composable("analisis"){
                 AnalisisScreen(modifier)
