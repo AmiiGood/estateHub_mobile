@@ -21,6 +21,7 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @SuppressLint("MissingPermission")
@@ -66,8 +67,10 @@ fun AnalisisScreen(modifier: Modifier){
 @Composable
 fun Mapa(modifier: Modifier, cameraPosition: CameraPositionState){
 
-    val mapaType by remember{ mutableStateOf(MapProperties(mapType = MapType.TERRAIN)) }
+    val mapaType by remember{ mutableStateOf(MapProperties(mapType = MapType.TERRAIN, isMyLocationEnabled = true)) }
 
     GoogleMap(modifier = Modifier.fillMaxSize(),
-        properties = mapaType, cameraPositionState =  cameraPosition) {  }
+        properties = mapaType,
+        cameraPositionState =  cameraPosition,
+        uiSettings = MapUiSettings(myLocationButtonEnabled = true)) {  }
 }
