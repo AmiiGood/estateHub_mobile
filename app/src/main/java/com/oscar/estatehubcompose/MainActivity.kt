@@ -93,12 +93,8 @@ class MainActivity : ComponentActivity() {
             }
             composable("registro"){
                 RegisterScreen(
-                    viewModel = registerViewModel,
-                    onNavigateToLogin = {
-                        navHostController.navigate("login") {
-                            popUpTo("login") { inclusive = false }
-                        }
-                    }
+                    registerViewModel = registerViewModel,
+                    navController = navHostController
                 )
             }
             composable("home"){

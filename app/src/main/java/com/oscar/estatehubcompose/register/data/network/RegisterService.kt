@@ -8,13 +8,17 @@ import javax.inject.Inject
 
 class RegisterService @Inject constructor(private val registerClient: RegisterClient) {
 
-    suspend fun register(registerRequest: RegisterRequest): Pair<RegisterResponse?, Int?> {
+    suspend fun register(registerRequest: RegisterRequest): Result<RegisterResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = registerClient.register(registerRequest)
-                Pair(response.body(), response.code())
+                if (response.isSuccessful && response.body() != null) {
+                    Result.success(response.body()!!)
+                } else {
+                    Result.failure(Exception("Error ${response.code()}: ${response.message()}"))
+                }
             } catch (e: Exception) {
-                Pair(null, null)
+                Result.failure(e)
             }
         }
     }

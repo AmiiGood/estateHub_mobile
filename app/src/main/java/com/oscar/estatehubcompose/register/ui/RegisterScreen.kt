@@ -46,32 +46,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.oscar.estatehubcompose.ui.theme.Parkinsans
 
 @Composable
 fun RegisterScreen(
-    viewModel: RegisterViewModel,
-    onNavigateToLogin: () -> Unit = {},
-    onRegisterSuccess: () -> Unit = {}
+    registerViewModel: RegisterViewModel,
+    navController: NavController
 ) {
     val context = LocalContext.current
 
-    val email by viewModel.email.observeAsState("")
-    val password by viewModel.password.observeAsState("")
-    val nombre by viewModel.nombre.observeAsState("")
-    val apellidoPaterno by viewModel.apellidoPaterno.observeAsState("")
-    val apellidoMaterno by viewModel.apellidoMaterno.observeAsState("")
-    val telefono by viewModel.telefono.observeAsState("")
-    val isLoading by viewModel.isLoading.observeAsState(false)
-    val registerSuccess by viewModel.registerSuccess.observeAsState(false)
-    val errorMessage by viewModel.errorMessage.observeAsState("")
+    val email by registerViewModel.email.observeAsState("")
+    val password by registerViewModel.password.observeAsState("")
+    val nombre by registerViewModel.nombre.observeAsState("")
+    val apellidoPaterno by registerViewModel.apellidoPaterno.observeAsState("")
+    val apellidoMaterno by registerViewModel.apellidoMaterno.observeAsState("")
+    val telefono by registerViewModel.telefono.observeAsState("")
+    val isLoading by registerViewModel.isLoading.observeAsState(false)
+    val registerSuccess by registerViewModel.registerSuccess.observeAsState(false)
+    val errorMessage by registerViewModel.errorMessage.observeAsState("")
 
-    val emailError by viewModel.emailError.observeAsState("")
-    val passwordError by viewModel.passwordError.observeAsState("")
-    val nombreError by viewModel.nombreError.observeAsState("")
-    val apellidoPaternoError by viewModel.apellidoPaternoError.observeAsState("")
-    val apellidoMaternoError by viewModel.apellidoMaternoError.observeAsState("")
-    val telefonoError by viewModel.telefonoError.observeAsState("")
+    val emailError by registerViewModel.emailError.observeAsState("")
+    val passwordError by registerViewModel.passwordError.observeAsState("")
+    val nombreError by registerViewModel.nombreError.observeAsState("")
+    val apellidoPaternoError by registerViewModel.apellidoPaternoError.observeAsState("")
+    val apellidoMaternoError by registerViewModel.apellidoMaternoError.observeAsState("")
+    val telefonoError by registerViewModel.telefonoError.observeAsState("")
 
     LaunchedEffect(registerSuccess) {
         if (registerSuccess) {
@@ -80,7 +80,9 @@ fun RegisterScreen(
                 "Usuario registrado exitosamente",
                 Toast.LENGTH_LONG
             ).show()
-            onRegisterSuccess()
+            navController.navigate("login") {
+                popUpTo("registro") { inclusive = true }
+            }
         }
     }
 
@@ -96,17 +98,17 @@ fun RegisterScreen(
 
     RegisterScreenContent(
         email = email,
-        onEmailChange = { viewModel.setEmail(it) },
+        onEmailChange = { registerViewModel.setEmail(it) },
         password = password,
-        onPasswordChange = { viewModel.setPassword(it) },
+        onPasswordChange = { registerViewModel.setPassword(it) },
         nombre = nombre,
-        onNombreChange = { viewModel.setNombre(it) },
+        onNombreChange = { registerViewModel.setNombre(it) },
         apellidoPaterno = apellidoPaterno,
-        onApellidoPaternoChange = { viewModel.setApellidoPaterno(it) },
+        onApellidoPaternoChange = { registerViewModel.setApellidoPaterno(it) },
         apellidoMaterno = apellidoMaterno,
-        onApellidoMaternoChange = { viewModel.setApellidoMaterno(it) },
+        onApellidoMaternoChange = { registerViewModel.setApellidoMaterno(it) },
         telefono = telefono,
-        onTelefonoChange = { viewModel.setTelefono(it) },
+        onTelefonoChange = { registerViewModel.setTelefono(it) },
         isLoading = isLoading,
         registerSuccess = registerSuccess,
         errorMessage = errorMessage,
@@ -117,7 +119,7 @@ fun RegisterScreen(
         apellidoMaternoError = apellidoMaternoError,
         telefonoError = telefonoError,
         onRegisterClick = {
-            viewModel.onRegister(
+            registerViewModel.onRegister(
                 email = email,
                 password = password,
                 nombre = nombre,
@@ -126,7 +128,11 @@ fun RegisterScreen(
                 telefono = telefono
             )
         },
-        onNavigateToLogin = onNavigateToLogin
+        onNavigateToLogin = {
+            navController.navigate("login") {
+                popUpTo("login") { inclusive = false }
+            }
+        }
     )
 }
 

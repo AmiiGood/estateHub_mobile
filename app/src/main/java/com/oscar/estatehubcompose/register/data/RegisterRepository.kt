@@ -8,7 +8,7 @@ import javax.inject.Inject
 class RegisterRepository @Inject constructor(
     private val registerService: RegisterService
 ) {
-    suspend fun register(registerRequest: RegisterRequest): Pair<RegisterResponse?, Int?> {
+    suspend fun register(registerRequest: RegisterRequest): Result<RegisterResponse> {
         return registerService.register(registerRequest)
     }
 }

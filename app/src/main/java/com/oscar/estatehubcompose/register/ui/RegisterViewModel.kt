@@ -205,58 +205,30 @@ class RegisterViewModel @Inject constructor(
         val registerRequest = RegisterRequest(usuario = usuario)
 
         viewModelScope.launch {
-            try {
-                val (response, statusCode) = registerUseCase.invoke(registerRequest)
-                _isLoading.value = false
+            val result = registerUseCase.invoke(registerRequest)
 
-                when (statusCode) {
-                    200 -> {
-                        // Registro exitoso
-                        _registerSuccess.value = true
-                        _errorMessage.value = ""
-                    }
-                    400 -> {
-                        // Campos requeridos faltantes o vacíos
-                        _registerSuccess.value = false
-                        _errorMessage.value = "${response?.message ?: "Campos requeridos faltantes o vacíos"}"
-                    }
-                    409 -> {
-                        // El correo ya está registrado
-                        _registerSuccess.value = false
-                        _errorMessage.value = "${response?.message ?: "El correo ya está registrado"}"
-                    }
-                    500 -> {
-                        // Error en el servidor
-                        _registerSuccess.value = false
-                        _errorMessage.value = "${response?.message ?: "Error al registrar el usuario"}"
-                    }
-                    else -> {
-                        _registerSuccess.value = false
-                        _errorMessage.value = "Error desconocido: ${response?.message ?: "Intenta de nuevo"}"
-                    }
-                }
-            } catch (e: retrofit2.HttpException) {
+            result.onSuccess { response ->
+                _isLoading.value = false
+                _registerSuccess.value = true
+                _errorMessage.value = ""
+            }.onFailure { exception ->
                 _isLoading.value = false
                 _registerSuccess.value = false
 
-                _errorMessage.value = when (e.code()) {
-                    400 -> "Campos requeridos faltantes o vacíos"
-                    409 -> "El correo ya está registrado"
-                    500 -> "Error en el servidor. Intenta más tarde"
-                    else -> "Error de conexión: ${e.message()}"
+                _errorMessage.value = when {
+                    exception.message?.contains("400") == true ->
+                        "Campos requeridos faltantes o vacíos"
+                    exception.message?.contains("409") == true ->
+                        "El correo ya está registrado"
+                    exception.message?.contains("500") == true ->
+                        "Error en el servidor. Intenta más tarde"
+                    exception is java.net.UnknownHostException ->
+                        "No hay conexión a internet"
+                    exception is java.net.SocketTimeoutException ->
+                        "Tiempo de espera agotado. Intenta de nuevo"
+                    else ->
+                        exception.message ?: "Error inesperado"
                 }
-            } catch (e: java.net.UnknownHostException) {
-                _isLoading.value = false
-                _registerSuccess.value = false
-                _errorMessage.value = "No hay conexión a internet"
-            } catch (e: java.net.SocketTimeoutException) {
-                _isLoading.value = false
-                _registerSuccess.value = false
-                _errorMessage.value = "Tiempo de espera agotado. Intenta de nuevo"
-            } catch (e: Exception) {
-                _isLoading.value = false
-                _registerSuccess.value = false
-                _errorMessage.value = "Error inesperado: ${e.message}"
             }
         }
     }
