@@ -37,6 +37,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.oscar.estatehubcompose.analisis.ui.AnalisisScreen
 import com.oscar.estatehubcompose.home.ui.Home
+import com.oscar.estatehubcompose.home.ui.HomeViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
 import com.oscar.estatehubcompose.register.ui.RegisterScreen
@@ -49,7 +50,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val loginViewModel: LoginViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by viewModels();
+    private val homeViewModel: HomeViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,39 +68,29 @@ class MainActivity : ComponentActivity() {
             val rutactual = currentBackStackEntry?.destination?.route
             //Verifica que la ruta no este dentro de el arreglo noMenu
             val mostrarNavegacion= rutactual !in noMenu;
-
             EstateHubComposeTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        if(mostrarNavegacion) {
-                            Navbar(navController)
-                        }
+                Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
+                    if(mostrarNavegacion) {
+                        Navbar(navController)
                     }
-                ) { innerPadding ->
+                }) { innerPadding ->
+
                     AppNavigation(Modifier.padding(innerPadding), navController)
                 }
             }
         }
     }
-
     @Composable
     fun AppNavigation(modifier: Modifier, navHostController: NavHostController){
         NavHost(navHostController, "login", Modifier) {
             composable("login"){
-                LoginScreen(
-                    loginViewModel = loginViewModel,
-                    navController = navHostController
-                )
+                LoginScreen(loginViewModel = loginViewModel, navController = navHostController)
             }
             composable("registro"){
-                RegisterScreen(
-                    registerViewModel = registerViewModel,
-                    navController = navHostController
-                )
+                RegisterScreen(registerViewModel = registerViewModel, navController = navHostController)
             }
             composable("home"){
-                Home()
+                Home(modifier, homeViewModel = homeViewModel)
             }
             composable("analisis"){
                 AnalisisScreen(modifier)
@@ -122,8 +114,8 @@ class MainActivity : ComponentActivity() {
                 NavigationBarItem(
                     icon = {
                         Icon( if(selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item)
-                    },
-                    label = {Text(item)},
+                           },
+                label = {Text(item)},
                     selected = selectedItem == index,
                     onClick = {
                         selectedItem = index
@@ -142,8 +134,6 @@ class MainActivity : ComponentActivity() {
 
     }
 }
-
-
 
 
 

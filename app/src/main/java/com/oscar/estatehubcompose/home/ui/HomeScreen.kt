@@ -4,12 +4,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun Home(){
+fun Home(modifier: Modifier, homeViewModel: HomeViewModel){
 
     val permisos = rememberMultiplePermissionsState(
         listOf(
@@ -18,7 +19,10 @@ fun Home(){
         )
     )
 
+
+
     LaunchedEffect(Unit) {
+
         if(!permisos.allPermissionsGranted){
             permisos.launchMultiplePermissionRequest();
         }
@@ -26,7 +30,7 @@ fun Home(){
 
 
 
-    Column {
+    Column(modifier) {
         Text("EN RUTA HOME")
     }
 }

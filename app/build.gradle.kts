@@ -70,4 +70,5 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:4.4.1")
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 }
