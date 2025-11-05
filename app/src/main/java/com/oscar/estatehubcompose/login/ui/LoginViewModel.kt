@@ -1,5 +1,6 @@
 package com.oscar.estatehubcompose.login.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,9 +16,11 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
     private var _correo = MutableLiveData<String>();
     private var _contrasenia = MutableLiveData<String>();
+    private var _isLogged = MutableLiveData<Boolean?>();
 
     var correo: LiveData<String> = _correo;
     var contrasenia: LiveData<String> = _contrasenia;
+    var isLogged = _isLogged;
 
     fun setCorreo(correo: String){
         _correo.value = correo;
@@ -32,9 +35,15 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
 
     fun onLogin(user: String, password: String){
         val loginRequest: LoginRequest = LoginRequest(user, password);
-
         viewModelScope.launch {
             val response = loginUseCase.invoke(loginRequest);
+            Log.i("OSCAR", response.toString());
+            if(response.isSuccess){
+                _isLogged.value = true;
+            }else{
+                _isLogged.value = false;
+            }
+
         }
     };
 }

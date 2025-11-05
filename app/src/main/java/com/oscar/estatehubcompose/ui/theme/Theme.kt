@@ -15,7 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = ThirdPersonalized,
     secondary = PrimaryPersonalized,
-    tertiary = FourthPersonalized
+    tertiary = FourthPersonalized,
+    onPrimary = PrimaryPersonalized
 )
 
 private val LightColorScheme = lightColorScheme(

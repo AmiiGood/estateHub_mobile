@@ -1,6 +1,8 @@
 package com.oscar.estatehubcompose.core.DI
 
+import com.oscar.estatehubcompose.analisis.data.network.AnalisisClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
+import com.oscar.estatehubcompose.register.data.network.RegisterClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +21,7 @@ class NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://localhost:3000/")
+            .baseUrl("http://192.168.1.81:3000/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     };
@@ -28,6 +30,18 @@ class NetworkModule {
     @Singleton
     fun provideLoginClient(retrofit: Retrofit): LoginClient{
         return retrofit.create(LoginClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRegisterClient(retrofit: Retrofit): RegisterClient {
+        return retrofit.create(RegisterClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAnalisisClient(retrofit: Retrofit): AnalisisClient {
+        return retrofit.create(AnalisisClient::class.java)
     }
 };
 

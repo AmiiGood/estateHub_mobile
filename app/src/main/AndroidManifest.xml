@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+
     xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".EstateHub"
@@ -11,7 +23,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.EstateHubCompose">
+        android:theme="@style/Theme.EstateHubCompose"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31"
+        tools:ignore="UnusedAttribute"
+        >
+
+
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="API_SECRET"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -22,6 +41,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+
         </activity>
     </application>
 
