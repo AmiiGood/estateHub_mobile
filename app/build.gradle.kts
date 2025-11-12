@@ -72,4 +72,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("com.google.android.libraries.places:places:3.3.0")
 }

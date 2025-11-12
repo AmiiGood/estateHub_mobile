@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,6 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.android.libraries.places.api.Places
 import com.oscar.estatehubcompose.analisis.ui.AnalisisScreen
 import com.oscar.estatehubcompose.home.ui.Home
 import com.oscar.estatehubcompose.home.ui.HomeViewModel
@@ -54,10 +56,18 @@ class MainActivity : ComponentActivity() {
     private val homeViewModel: HomeViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels()
 
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
+            //Se declara Places (api que contiene una serie de puntos de interes)
+            if (!Places.isInitialized()) {
+                Places.initialize(applicationContext, "AIzaSyBrpzfq9rUL8qL8lpCir9998my7l7z23ec")
+            }
             //Declaramos la barra de navegacion
             val navController = rememberNavController();
             //Creamos un arreglo con los componentes donde no estara la barra de navegacion
