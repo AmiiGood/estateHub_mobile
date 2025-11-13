@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
 
             //Se declara Places (api que contiene una serie de puntos de interes)
             if (!Places.isInitialized()) {
-                Places.initialize(applicationContext, "AIzaSyBrpzfq9rUL8qL8lpCir9998my7l7z23ec")
+                Places.initialize(applicationContext, "APIKEY")
             }
             //Declaramos la barra de navegacion
             val navController = rememberNavController();
