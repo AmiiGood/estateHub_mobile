@@ -2,7 +2,9 @@ package com.oscar.estatehubcompose.analisis.data
 
 import com.oscar.estatehubcompose.analisis.data.network.AnalisisService
 import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
+import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
 import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
+import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
 import javax.inject.Inject
 
 class AnalisisRepository @Inject constructor(private val analisisService: AnalisisService){
@@ -13,6 +15,11 @@ class AnalisisRepository @Inject constructor(private val analisisService: Analis
 
         return response;
 
+    }
+
+    suspend fun geocodificar(geocodificadorRequest: GeocodificadorRequest): GeocodificadorResponse?{
+        val response = analisisService.geocodificar(geocodificadorRequest);
+        return response;
     }
 
 }
