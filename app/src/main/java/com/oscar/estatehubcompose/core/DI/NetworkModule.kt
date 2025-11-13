@@ -1,5 +1,6 @@
 package com.oscar.estatehubcompose.core.DI
 
+import com.oscar.estatehubcompose.BuildConfig
 import com.oscar.estatehubcompose.analisis.data.network.AnalisisClient
 import com.oscar.estatehubcompose.properties.data.network.PropertyClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
@@ -16,12 +17,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
-
+    private val BASE_URL = BuildConfig.BASE_URL;
     @Singleton
     @Provides
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://172.16.119.35:3000/api/")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

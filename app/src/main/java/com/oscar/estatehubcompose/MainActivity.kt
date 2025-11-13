@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private val loginViewModel: LoginViewModel by viewModels();
     private val propertyViewModel: PropertyViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels()
+    private val apiKey = BuildConfig.API_KEY;
 
 
 
@@ -64,7 +65,7 @@ class MainActivity : ComponentActivity() {
 
             //Se declara Places (api que contiene una serie de puntos de interes)
             if (!Places.isInitialized()) {
-                Places.initialize(applicationContext, "APIKEY")
+                Places.initialize(applicationContext, apiKey)
             }
             //Declaramos la barra de navegacion
             val navController = rememberNavController();
