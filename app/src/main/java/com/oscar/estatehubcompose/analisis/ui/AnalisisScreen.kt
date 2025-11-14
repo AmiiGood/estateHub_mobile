@@ -4,6 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -250,6 +256,69 @@ fun Mapa(
     }
 }
 
+@Composable
+fun CardPropiedad(data: GeocodificadorInfo?) {
+
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+
+    Row(
+        Modifier
+            .padding(2.dp)
+            .clickable{
+                expanded = !expanded
+            }
+            .shadow(8.dp, RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.White)
+            .padding(16.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Column(verticalArrangement = Arrangement.Bottom) {
+            Text(
+                "${data?.codigoPostal}",
+                style = TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Parkinsans
+                )
+            )
+
+            Text(
+                "Jardines de jerez",
+                style = TextStyle(
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = Parkinsans
+                )
+            )
+
+
+                AnimatedVisibility(visible = expanded
+                ) {
+                    PropiedadesExpanded(Modifier.animateContentSize());
+                }
+
+
+        }
+    }
+}
+
+
+@Composable
+fun PropiedadesExpanded(modifier:Modifier){
+    Column() {
+        Text("Texto expanded")
+        Text("Texto expanded")
+        Text("Texto expanded")
+        Text("Texto expanded")
+    }
+};
+
+
+
 fun buscarLugares(
     placesClient: PlacesClient,
     query: String,
@@ -290,53 +359,4 @@ fun obtenerDetallesLugar(
         .addOnFailureListener { exception ->
             Log.e("Places", "Error obteniendo detalles", exception)
         }
-}
-
-@Composable
-fun CardPropiedad(data: GeocodificadorInfo?) {
-    Row(
-        Modifier
-            .padding(2.dp)
-            .shadow(8.dp, RoundedCornerShape(10.dp))
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.White)
-            .padding(16.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Column(verticalArrangement = Arrangement.Bottom) {
-            Text(
-                "${data?.codigoPostal}",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Parkinsans
-                )
-            )
-
-            Text(
-                "Jardines de jerez",
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = Parkinsans
-                )
-            )
-
-
-
-            Button(
-                onClick = { /* TODO */ },
-                shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.padding(5.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text("Ver detalles")
-            }
-        }
-    }
 }
