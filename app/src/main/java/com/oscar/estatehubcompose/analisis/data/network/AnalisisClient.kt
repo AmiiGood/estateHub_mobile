@@ -10,9 +10,9 @@ import retrofit2.http.POST
 
 interface AnalisisClient {
 
-    @POST
+    @POST("analisis/analizar")
     suspend fun analizar(@Body punto: AnalisisRequest): Response<AnalisisResponse>;
 
-    @POST
+    @POST("geocodificador/getInfo")
     suspend fun geocodificar(@Body geocodificadorRequest: GeocodificadorRequest): Response<GeocodificadorResponse>
 }
