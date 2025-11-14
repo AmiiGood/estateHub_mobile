@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -66,6 +67,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
 import com.oscar.estatehubcompose.ui.theme.Parkinsans
 
 @SuppressLint("MissingPermission")
@@ -73,6 +75,8 @@ import com.oscar.estatehubcompose.ui.theme.Parkinsans
 fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel) {
     val context = LocalContext.current
     var ubicacionDispositivo by remember { mutableStateOf<Location?>(null) }
+
+
     val fusedLocationClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
@@ -120,6 +124,13 @@ fun Mapa(
     var selectedPlace by remember { mutableStateOf<LatLng?>(null) }
     //Se declara el cliente de places
     val placesClient = remember { Places.createClient(context) }
+    val data by analisisViewModel.data.observeAsState();
+
+
+    LaunchedEffect(Unit) {
+        analisisViewModel.getData(ubicacionDispositivo?.latitude ?: 21.121153, ubicacionDispositivo?.longitude ?: -101.682511)
+    }
+
 
     Box(modifier.fillMaxSize()) {
         // Mapa
@@ -234,7 +245,7 @@ fun Mapa(
                 .align(Alignment.BottomCenter)
                 .padding(10.dp)
         ) {
-            CardPropiedad()
+            CardPropiedad(data)
         }
     }
 }
@@ -281,30 +292,22 @@ fun obtenerDetallesLugar(
         }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun CardPropiedad() {
+fun CardPropiedad(data: GeocodificadorInfo?) {
     Row(
         Modifier
             .padding(2.dp)
             .shadow(8.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
             .background(Color.White)
-            .padding(16.dp),
+            .padding(16.dp)
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(
-            model = "https://images.homify.com/v1440015283/p/photo/image/832767/JLF_6309.jpg",
-            contentDescription = "imagenFoto",
-            Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .size(100.dp)
-        )
 
-        Spacer(Modifier.padding(10.dp))
         Column(verticalArrangement = Arrangement.Bottom) {
             Text(
-                "Argentina 2020A",
+                "${data?.codigoPostal}",
                 style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -313,13 +316,15 @@ fun CardPropiedad() {
             )
 
             Text(
-                "$2,000,000",
+                "Jardines de jerez",
                 style = TextStyle(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = Parkinsans
                 )
             )
+
+
 
             Button(
                 onClick = { /* TODO */ },
