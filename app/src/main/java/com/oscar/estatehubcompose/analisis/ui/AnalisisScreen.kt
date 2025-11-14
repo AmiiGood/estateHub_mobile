@@ -70,7 +70,7 @@ import com.oscar.estatehubcompose.ui.theme.Parkinsans
 
 @SuppressLint("MissingPermission")
 @Composable
-fun AnalisisScreen(modifier: Modifier) {
+fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel) {
     val context = LocalContext.current
     var ubicacionDispositivo by remember { mutableStateOf<Location?>(null) }
     val fusedLocationClient = remember {
@@ -94,45 +94,17 @@ fun AnalisisScreen(modifier: Modifier) {
         }
     }
 
-    Mapa(modifier, cameraPosition, ubicacionDispositivo, context)
+    Mapa(modifier, cameraPosition, ubicacionDispositivo, context, analisisViewModel)
 }
 
-@SuppressLint("MissingPermission")
-@Composable
-@Preview(showBackground = true)
-fun PreviewAnalisisScreen() {
-    val context = LocalContext.current
-    var ubicacionDispositivo by remember { mutableStateOf<Location?>(null) }
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
-    val coordenadaInicial = LatLng(21.0190, -101.2574)
-    val cameraPosition = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(coordenadaInicial, 25f)
-    }
-
-    LaunchedEffect(Unit) {
-        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-            location?.let {
-                ubicacionDispositivo = it
-                Log.d("Ubicacion", "Ubicación obtenida: ${it.latitude}, ${it.longitude}")
-                val nuevaUbicacion = LatLng(it.latitude, it.longitude)
-                cameraPosition.position = CameraPosition.fromLatLngZoom(nuevaUbicacion, 17f)
-            }
-        }.addOnFailureListener { exception ->
-            Log.e("Ubicacion", "Error obteniendo ubicación: ${exception.message}")
-        }
-    }
-
-    Mapa(Modifier, cameraPosition, ubicacionDispositivo, context)
-}
 
 @Composable
 fun Mapa(
     modifier: Modifier,
     cameraPosition: CameraPositionState,
     ubicacionDispositivo: Location?,
-    context: Context
+    context: Context,
+    analisisViewModel: AnalisisViewModel
 ) {
 
 
@@ -235,7 +207,10 @@ fun Mapa(
                                             cameraPosition.position =
                                                 CameraPosition.fromLatLngZoom(latLng, 15f)
                                             busqueda = prediction.getPrimaryText(null).toString()
-                                            predictions = emptyList()
+                                            predictions = emptyList();
+
+                                            analisisViewModel.getData(latLng.latitude, latLng.longitude);
+
                                         }
                                     }
                                     .padding(12.dp),

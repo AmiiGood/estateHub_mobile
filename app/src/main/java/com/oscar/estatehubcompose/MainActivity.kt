@@ -38,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.libraries.places.api.Places
 import com.oscar.estatehubcompose.analisis.ui.AnalisisScreen
+import com.oscar.estatehubcompose.analisis.ui.AnalisisViewModel
 import com.oscar.estatehubcompose.home.ui.Home
 import com.oscar.estatehubcompose.home.ui.HomeViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
@@ -54,7 +55,8 @@ class MainActivity : ComponentActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels();
     private val homeViewModel: HomeViewModel by viewModels();
-    private val registerViewModel: RegisterViewModel by viewModels()
+    private val registerViewModel: RegisterViewModel by viewModels();
+    private val analisisViewModel: AnalisisViewModel by viewModels();
 
 
 
@@ -103,7 +105,7 @@ class MainActivity : ComponentActivity() {
                 Home(modifier, homeViewModel = homeViewModel)
             }
             composable("analisis"){
-                AnalisisScreen(modifier)
+                AnalisisScreen(modifier, analisisViewModel)
             }
         }
     }

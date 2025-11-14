@@ -37,7 +37,7 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
 
 
 
-    fun getData(latitud: Double, longitud: Double, codigo_postal: Int){
+    fun getData(latitud: Double, longitud: Double){
 
         var geocodificadorRequest = GeocodificadorRequest(latitud, longitud, listOf(1,2,3));
 
