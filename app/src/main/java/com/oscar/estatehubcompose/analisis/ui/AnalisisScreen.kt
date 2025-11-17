@@ -6,10 +6,6 @@ import android.location.Location
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,16 +19,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Handshake
+import androidx.compose.material.icons.filled.HealthAndSafety
+import androidx.compose.material.icons.filled.LocalParking
+import androidx.compose.material.icons.filled.Man
+import androidx.compose.material.icons.filled.Nature
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.TheaterComedy
+import androidx.compose.material.icons.filled.Woman
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -49,13 +58,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -66,6 +74,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -92,12 +101,15 @@ fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel) {
     }
 
     LaunchedEffect(Unit) {
+
         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             location?.let {
                 ubicacionDispositivo = it
                 Log.d("Ubicacion", "Ubicación obtenida: ${it.latitude}, ${it.longitude}")
                 val nuevaUbicacion = LatLng(it.latitude, it.longitude)
-                cameraPosition.position = CameraPosition.fromLatLngZoom(nuevaUbicacion, 17f)
+
+                cameraPosition.position = CameraPosition.fromLatLngZoom(nuevaUbicacion, 14f)
+                analisisViewModel.getData(ubicacionDispositivo?.latitude ?: 21.121153, ubicacionDispositivo?.longitude ?: -101.682511)
             }
         }.addOnFailureListener { exception ->
             Log.e("Ubicacion", "Error obteniendo ubicación: ${exception.message}")
@@ -128,14 +140,12 @@ fun Mapa(
     var predictions by remember { mutableStateOf<List<AutocompletePrediction>>(emptyList()) }
     //Se declara la latitud y longitud del resultado de la busqueda
     var selectedPlace by remember { mutableStateOf<LatLng?>(null) }
+
     //Se declara el cliente de places
     val placesClient = remember { Places.createClient(context) }
     val data by analisisViewModel.data.observeAsState();
 
 
-    LaunchedEffect(Unit) {
-        analisisViewModel.getData(ubicacionDispositivo?.latitude ?: 21.121153, ubicacionDispositivo?.longitude ?: -101.682511)
-    }
 
 
     Box(modifier.fillMaxSize()) {
@@ -150,13 +160,35 @@ fun Mapa(
                 bottom = 150.dp
             )
         ) {
-            selectedPlace?.let {
-                Marker(
-                    state = MarkerState(position = it),
-                    title = busqueda,
 
+
+            selectedPlace?.let { place ->
+                Marker(
+                    state = MarkerState(position = place),
+                    title = busqueda,
+                )
+
+                Circle(
+                    center = place,
+                    radius = 1000.0,
+                    fillColor = Color(0x4D4285F4),
+                    strokeWidth = 2f
+                )
+            } ?: run {
+                Circle(
+                    center = LatLng(
+                        ubicacionDispositivo?.latitude ?: 21.121153,
+                        ubicacionDispositivo?.longitude ?: -101.682511
+                    ),
+                    radius = 1000.0,
+                    fillColor = Color(0x4D4285F4),
+                    strokeWidth = 2f
                 )
             }
+
+
+
+
         }
 
         // Columna superior con buscador y sugerencias
@@ -262,7 +294,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
 
-    Row(
+    Column(
         Modifier
             .padding(2.dp)
             .clickable{
@@ -273,49 +305,179 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
             .background(Color.White)
             .padding(16.dp)
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
+        Row(
 
-        Column(verticalArrangement = Arrangement.Bottom) {
-            Text(
-                "${data?.codigoPostal}",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Parkinsans
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.Bottom) {
+                Text(
+                    "${data?.codigoPostal}",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Parkinsans
+                    )
                 )
-            )
 
-            Text(
-                "Jardines de jerez",
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = Parkinsans
+                Text(
+                    "${data?.colonia}",
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = Parkinsans
+                    )
                 )
-            )
 
 
-                AnimatedVisibility(visible = expanded
-                ) {
-                    PropiedadesExpanded(Modifier.animateContentSize());
-                }
+            }
 
+            Column(
+                modifier = Modifier.wrapContentWidth(),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    "${data?.localidad}",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = Parkinsans
+                    )
+                )
+                Text(
+                    "${data?.estado}",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontFamily = Parkinsans
+                    )
+                )
+            }
 
         }
+
+        AnimatedVisibility(
+            visible = expanded
+        ) {
+            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data);
+        }
     }
+
+
 }
 
 
+
+
+
+
+
 @Composable
-fun PropiedadesExpanded(modifier:Modifier){
-    Column() {
-        Text("Texto expanded")
-        Text("Texto expanded")
-        Text("Texto expanded")
-        Text("Texto expanded")
+fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
+
+    Column(modifier) {
+        Spacer(Modifier.padding(10.dp))
+        Text("Informacion general:",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = Parkinsans
+            ));
+        Atributo(Modifier, Icons.Filled.CreditCard, Color(0XFF8AA624), "Nivel socieconomico:","${data?.nse}")
+        Atributo(Modifier, Icons.Filled.Groups, Color(0xFFDBE4C9), "Poblacion total:", "${data?.ponlacionTotal}")
+        Atributo(Modifier, Icons.Filled.Apartment, Color(0xFFFEEE91),"Personas con trabajo:","${data?.empleados}");
+        Spacer(Modifier.padding(10.dp))
+        Text("Educacion: ",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = Parkinsans
+            ));
+        Atributo(Modifier, Icons.Filled.School, Color.Green, "Poblacion analfabeta:","${data?.pob_analfabeta}")
+        Atributo(Modifier, Icons.Filled.School, Color.Green, "Poblacion con secundaria:","${data?.pob_secundaria}")
+        Atributo(Modifier, Icons.Filled.School, Color.Green, "Poblacion sin estudios:","${data?.pob_noEducacion}")
+
+        Spacer(Modifier.padding(10.dp))
+        Text("Viviendas:",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = Parkinsans
+            ));
+        Atributo(Modifier, Icons.Filled.Apartment, Color(0xFFE67E22),"Viviendas habitadas:","${data?.viviendas_habitadas}");
+        Atributo(Modifier, Icons.Filled.Apartment, Color(0xFFE67E22),"Viviendas con automovil:","${data?.viviendas_automovil}");
+
+        Spacer(Modifier.padding(10.dp))
+        Text("Informacion de la poblacion:",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = Parkinsans
+            ));
+
+
+        Atributo(Modifier, Icons.Filled.Man, Color(0xFFB87C4C),"Hombres:","${data?.hombres}");
+        Atributo(Modifier, Icons.Filled.Woman, Color(0xFFB87C4C),"Mujeres:","${data?.mujeres}");
+        Atributo(Modifier, Icons.Filled.Groups, Color(0xFFB87C4C),"15 a 64:","${data?.quince_seisCuatro}");
+        Atributo(Modifier, Icons.Filled.Man, Color(0xFFB87C4C),"18 a 24:","${data?.diezOcho_veninteCuatro}");
+        Atributo(Modifier, Icons.Filled.Man, Color(0xFFB87C4C),"+60:","${data?.mas_sesenta}");
+        Atributo(Modifier, Icons.Filled.Man, Color(0xFFB87C4C),"+65:","${data?.mas_seisCinco}");
+
+
+
+
+        Spacer(Modifier.padding(10.dp))
+        Text("Negocios en la zona:",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = Parkinsans
+            ));
+        Atributo(Modifier, Icons.Filled.HealthAndSafety, Color(0xFFFE6244),"Salud:","${data?.hospitales_farmacias}");
+        Atributo(Modifier, Icons.Filled.Fastfood, Color(0xFFFF8040),"Restaurantes:","${data?.restaurantes}");
+        Atributo(Modifier, Icons.Filled.School, Color(0xFF0046FF),"Educacion:","${data?.educacion}");
+        Atributo(Modifier, Icons.Filled.AccountBalance, Color(0xFF84994F),"Financieros:","${data?.financiero}");
+        Atributo(Modifier, Icons.Filled.Nature, Color(0xFF347433),"Parques:","${data?.parques}");
+        Atributo(Modifier, Icons.Filled.TheaterComedy, Color(0xFF347433),"Entretenimiento:","${data?.entretenimiento}");
+        Atributo(Modifier, Icons.Filled.Handshake, Color(0xFF7FDBDA),"Comercio:","${data?.negocios}");
+        Atributo(Modifier, Icons.Filled.LocalParking, Color.White,"Estacionamiento:","${data?.estacionamientos}");
+
     }
+
 };
+
+@Composable
+fun Atributo(modifier: Modifier, icono: ImageVector, color: Color,texto:String, data: String){
+
+    Spacer(Modifier.padding(5.dp))
+    Column(modifier.fillMaxWidth()) {
+
+
+        Row (Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
+            Box(Modifier.clip(RoundedCornerShape(5.dp))
+                .background(color)
+                .padding(5.dp),
+                contentAlignment = Alignment.Center){
+                Icon(imageVector = icono, contentDescription = "NSE", Modifier.size(14.dp));
+            }
+
+            Spacer(Modifier.padding(5.dp))
+            Text(texto,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Parkinsans
+                ));
+            Spacer(Modifier.padding(3.dp))
+            Text("${data}",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = Parkinsans
+                ));
+        }
+    }
+}
 
 
 
