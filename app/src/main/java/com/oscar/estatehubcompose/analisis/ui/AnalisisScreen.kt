@@ -28,7 +28,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.CreditCard
@@ -44,10 +43,11 @@ import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TheaterComedy
 import androidx.compose.material.icons.filled.Woman
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -89,6 +89,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
+import com.oscar.estatehubcompose.analisis.data.network.response.ParsedGeminiResponse
 import com.oscar.estatehubcompose.ui.theme.Parkinsans
 
 @SuppressLint("MissingPermission")
@@ -150,6 +151,7 @@ fun Mapa(
     //Se declara el cliente de places
     val placesClient = remember { Places.createClient(context) }
     val data by analisisViewModel.data.observeAsState();
+    val dataGemini by analisisViewModel.dataGemini.observeAsState();
 
 
 
@@ -308,13 +310,13 @@ fun Mapa(
                 .align(Alignment.BottomCenter)
                 .padding(10.dp)
         ) {
-            CardPropiedad(data, analisisViewModel)
+            CardPropiedad(data, dataGemini,analisisViewModel)
         }
     }
 }
 
 @Composable
-fun CardPropiedad(data: GeocodificadorInfo?, analisisViewModel: AnalisisViewModel) {
+fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,analisisViewModel: AnalisisViewModel) {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -388,7 +390,7 @@ fun CardPropiedad(data: GeocodificadorInfo?, analisisViewModel: AnalisisViewMode
         AnimatedVisibility(
             visible = expanded
         ) {
-            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data, analisisViewModel );
+            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data, dataGemini,analisisViewModel );
         }
     }
 
@@ -402,7 +404,7 @@ fun CardPropiedad(data: GeocodificadorInfo?, analisisViewModel: AnalisisViewMode
 
 
 @Composable
-fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, analisisViewModel: AnalisisViewModel){
+fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?, analisisViewModel: AnalisisViewModel){
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var expanded2 by rememberSaveable { mutableStateOf(false) }
@@ -506,38 +508,30 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, analisisVi
             }
         }
 
-        OutlinedButton(onClick = {
-            analisisViewModel.analizarGemini(data?.colonia ?: "", data?.codigoPostal ?: "",data?.localidad ?: "", data?.estado ?: "")
-        }) {
+        Button(
+            onClick = {
+
+            analisisViewModel.analizarGemini(data?.colonia ?: "", data?.codigoPostal ?: "",data?.localidad ?: "", data?.estado ?: "", data)
+            expanded2 = true
+        },
+            Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.secondary
+            ),) {
             Text("Analizar")
         }
 
-        Column(modifier.clickable{
-            expanded2 = !expanded2
+        AnimatedVisibility(visible = expanded2) {
 
-        }) {
-            Spacer(Modifier.padding(10.dp))
-
-            Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp)),
-                verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(10.dp)){
-                    Icon(imageVector = Icons.Filled.Analytics,
-                        contentDescription = "Analizar",
-                        tint = MaterialTheme.colorScheme.secondary)
-                }
-
-                Spacer(Modifier.padding(10.dp))
-                Text("Enriquecer informacion");
+            Column {
+                Text("${dataGemini?.compra?.casa}");
             }
-            AnimatedVisibility(visible = expanded2) {
-                Column(Modifier.padding(10.dp)) {  }
-                Text("INFORMACION PARA ANALIZAR") }
-
 
         }
+
+
     }
 
 

@@ -1,8 +1,5 @@
     package com.oscar.estatehubcompose.analisis.data
 
-    import android.util.Log
-    import androidx.lifecycle.LiveData
-    import androidx.lifecycle.MutableLiveData
     import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
     import com.oscar.estatehubcompose.analisis.data.network.AnalisisService
     import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
@@ -12,7 +9,6 @@
     import com.oscar.estatehubcompose.analisis.data.network.request.Part
     import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
     import com.oscar.estatehubcompose.analisis.data.network.response.GeminiResponse
-    import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
     import javax.inject.Inject
 
     class AnalisisRepository @Inject constructor(private val analisisService: AnalisisService){
@@ -92,51 +88,60 @@
         }
 
 
-        suspend fun geminiAnalizar(colonia: String,
-                                   codigoPostal: String,
-                                   ciudad:String,
-                                   estado:String): GeminiResponse? {
+        suspend fun geminiAnalizar(
+            colonia: String,
+            codigoPostal: String,
+            ciudad: String,
+            estado: String,
+            geocodificadorInfo: GeocodificadorInfo?
+        ): GeminiResponse? {
 
             val prompt = """
-        colonia: $colonia cp: $codigoPostal ciudad: $ciudad estado: $estado
-        
-        1. TAREA: Realiza un análisis de precios promedio (compra/renta), rentabilidad (Cap Rate), plusvalía inferida y genera recomendaciones de negocio para la zona de búsqueda.
-        
-        2. DATOS DE ENTRADA: La zona de búsqueda y los datos socioeconómicos serán proporcionados a continuación en el input.
-        
-        3. FORMATO DE SALIDA REQUERIDO: SIEMPRE devolverás la respuesta en el siguiente formato JSON, sin excepción, reemplazando los valores (0, "", etc.) por los datos analizados:
-        
+    colonia: $colonia cp: $codigoPostal ciudad: $ciudad estado: $estado
+    
+    info_demografica: ${geocodificadorInfo}
+    INSTRUCCIONES CRÍTICAS:
+    1. Tu respuesta DEBE ser ÚNICAMENTE un objeto JSON válido
+    2. NO uses bloques de código markdown (``` ```)
+    3. NO uses ningún formato markdown
+    4. NO agregues explicaciones antes o después del JSON
+    5. La primera línea debe empezar con {
+    6. La última línea debe terminar con }
+    
+    TAREA: Realiza un análisis de precios promedio (compra/renta), rentabilidad (Cap Rate), plusvalía inferida y genera recomendaciones de negocio toma en cuenta la informacion demografica que te mande.
+    
+    FORMATO REQUERIDO (responde SOLO esto, sin nada más):
+    {
+      "compra": {
+        "casa": 0,
+        "local_comercial": 0,
+        "departamento": 0
+      },
+      "renta": {
+        "casa": 0,
+        "local_comercial": 0,
+        "departamento": 0
+      },
+      "recomendacion_negocio": [
         {
-          "compra": {
-            "casa": 0,
-            "local_comercial": 0,
-            "departamento": 0
-          },
-          "renta": {
-            "casa": 0,
-            "local_comercial": 0,
-            "departamento": 0
-          },
-          "recomendacion_negocio": [
-            {
-              "sector": "",
-              "oportunidad": "",
-              "descripcion": ""
-            }
-          ],
-          "rentabilidad_neta": {
-            "explicacion_de_que_es": "",
-            "local_comercial": "",
-            "departamento": "",
-            "casa": ""
-          },
-          "plusvalia_recomendada": {
-            "tendencia": "",
-            "explicacion_sencilla": "",
-            "aumento_valor_aprox_5_anios": ""
-          }
+          "sector": "",
+          "oportunidad": "",
+          "descripcion": ""
         }
-    """.trimIndent()
+      ],
+      "rentabilidad_neta": {
+        "explicacion_de_que_es": "",
+        "local_comercial": "",
+        "departamento": "",
+        "casa": ""
+      },
+      "plusvalia_recomendada": {
+        "tendencia": "",
+        "explicacion_sencilla": "",
+        "aumento_valor_aprox_5_anios": ""
+      }
+    }
+""".trimIndent()
             val request = GeminiRequest(contents = listOf(
                 Content(
                     parts = listOf(Part(prompt))
