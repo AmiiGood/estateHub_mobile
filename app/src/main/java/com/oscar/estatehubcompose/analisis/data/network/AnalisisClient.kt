@@ -1,13 +1,18 @@
 package com.oscar.estatehubcompose.analisis.data.network
 
 import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
+import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
 import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
+import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AnalisisClient {
 
-    @POST
+    @POST("analisis/analizar")
     suspend fun analizar(@Body punto: AnalisisRequest): Response<AnalisisResponse>;
+
+    @POST("geocodificador/getInfo")
+    suspend fun geocodificar(@Body geocodificadorRequest: GeocodificadorRequest): Response<GeocodificadorResponse>
 }
