@@ -1,0 +1,37 @@
+package com.oscar.estatehubcompose.analisis.Models
+
+data class GeocodificadorInfo(
+    var region: String,
+    var estado: String,
+    var municipio: String,
+    var localidad: String,
+    var colonia: String,
+    var codigoPostal: String,
+    var calle: String,
+    var ponlacionTotal: Int,
+    var hombres: Int,
+    var mujeres: Int,
+    var quince_seisCuatro: Int,
+    var mas_seisCinco: Int,
+    var diezOcho_veninteCuatro: Int,
+    var mas_sesenta: Int,
+    var pob_analfabeta: Int,
+    var pob_secundaria:Int,
+    var pob_noEducacion:Int,
+    var empleados: Int,
+    var viviendas_habitadas: Int,
+    var viviendas_automovil: Int,
+    var nse: String,
+    var autos_servicios: Int,
+    var negocios: Int,
+    var hospitales_farmacias: Int,
+    var parques: Int,
+    var financiero: Int,
+    var entretenimiento: Int,
+    var educacion: Int,
+    var estacionamientos: Int,
+    var restaurantes: Int,
+    var otros: Int,
+
+    ) {
+}
