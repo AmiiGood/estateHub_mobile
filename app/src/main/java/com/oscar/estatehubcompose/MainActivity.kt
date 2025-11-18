@@ -54,7 +54,6 @@ class MainActivity : ComponentActivity() {
     private val loginViewModel: LoginViewModel by viewModels();
     private val propertyViewModel: PropertyViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels();
-    private val homeViewModel: HomeViewModel by viewModels();
     private val analisisViewModel: AnalisisViewModel by viewModels();
     private val apiKey = BuildConfig.API_KEY;
 
