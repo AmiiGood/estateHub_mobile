@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,21 +22,23 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.android.libraries.places.api.Places
 import com.oscar.estatehubcompose.analisis.ui.AnalisisScreen
-import com.oscar.estatehubcompose.home.ui.Home
-import com.oscar.estatehubcompose.home.ui.HomeViewModel
+import com.oscar.estatehubcompose.properties.ui.Property
+import com.oscar.estatehubcompose.properties.ui.PropertyViewModel
+import com.oscar.estatehubcompose.analisis.ui.AnalisisViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
 import com.oscar.estatehubcompose.register.ui.RegisterScreen
@@ -51,13 +52,23 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val loginViewModel: LoginViewModel by viewModels();
-    private val homeViewModel: HomeViewModel by viewModels();
-    private val registerViewModel: RegisterViewModel by viewModels()
+    private val propertyViewModel: PropertyViewModel by viewModels();
+    private val registerViewModel: RegisterViewModel by viewModels();
+    private val analisisViewModel: AnalisisViewModel by viewModels();
+    private val apiKey = BuildConfig.API_KEY;
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
+            //Se declara Places (api que contiene una serie de puntos de interes)
+            if (!Places.isInitialized()) {
+                Places.initialize(applicationContext, apiKey)
+            }
             //Declaramos la barra de navegacion
             val navController = rememberNavController();
             //Creamos un arreglo con los componentes donde no estara la barra de navegacion
@@ -82,7 +93,7 @@ class MainActivity : ComponentActivity() {
     }
     @Composable
     fun AppNavigation(modifier: Modifier, navHostController: NavHostController){
-        NavHost(navHostController, "login", Modifier) {
+        NavHost(navHostController, "home", Modifier) {
             composable("login"){
                 LoginScreen(loginViewModel = loginViewModel, navController = navHostController)
             }
@@ -90,10 +101,13 @@ class MainActivity : ComponentActivity() {
                 RegisterScreen(registerViewModel = registerViewModel, navController = navHostController)
             }
             composable("home"){
-                Home(modifier, homeViewModel = homeViewModel)
+                // HomeScreen(modifier, navController = navHostController)
+            }
+            composable("mercado"){
+                Property(modifier, propertyViewModel = propertyViewModel, navController = navHostController)
             }
             composable("analisis"){
-                AnalisisScreen(modifier)
+                AnalisisScreen(modifier, analisisViewModel)
             }
         }
     }
@@ -101,10 +115,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Navbar(navController: NavController){
         var selectedItem by rememberSaveable { mutableStateOf(0) }
-        val items = listOf("home", "analisis", "Mercado","Perfil");
+        val items = listOf("home", "analisis", "mercado","Perfil");
         val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
-        val unselectedIcons = listOf(Icons.Filled.Home,Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
-
+        val unselectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
 
         NavigationBar(modifier = Modifier,
             containerColor = MaterialTheme.colorScheme.primary,
@@ -114,8 +127,8 @@ class MainActivity : ComponentActivity() {
                 NavigationBarItem(
                     icon = {
                         Icon( if(selectedItem == index) selectedIcons[index] else unselectedIcons[index], contentDescription = item)
-                           },
-                label = {Text(item)},
+                    },
+                    label = {Text(item)},
                     selected = selectedItem == index,
                     onClick = {
                         selectedItem = index
@@ -129,9 +142,7 @@ class MainActivity : ComponentActivity() {
                         unselectedTextColor = MaterialTheme.colorScheme.onPrimary
                     ))
             }
-
         }
-
     }
 }
 

@@ -1,12 +1,17 @@
 package com.oscar.estatehubcompose.analisis.ui
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
 import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
+import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
 import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
+import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
 import com.oscar.estatehubcompose.analisis.domain.AnalisisUseCase
+import com.oscar.estatehubcompose.analisis.domain.geocodificadorUseCase
 import com.oscar.estatehubcompose.helpers.DataStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,10 +19,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AnalisisViewModel @Inject constructor(private val analisisUseCase: AnalisisUseCase,
-    private val dataStoreManager: DataStoreManager): ViewModel(){
+                                            private val geocodificadorUseCase: geocodificadorUseCase,
+                                            private val dataStoreManager: DataStoreManager): ViewModel(){
 
 
-    private var _data = MutableLiveData<AnalisisResponse?>();
+    private var _data = MutableLiveData< GeocodificadorInfo?>();
+    var data: LiveData<GeocodificadorInfo?> = _data;
     private var _latitud = MutableLiveData<Double>();
     private var _longitud = MutableLiveData<Double>();
     private var _codigoPostal = MutableLiveData<Int>();
@@ -34,15 +41,18 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
 
 
 
-    fun getData(latitud: Double, longitud: Double, codigo_postal: Int){
+    fun getData(latitud: Double, longitud: Double){
 
-        var direccionData = AnalisisRequest(codigo_postal, latitud, longitud);
+        var geocodificadorRequest = GeocodificadorRequest(latitud, longitud, listOf(1,2,3));
 
         viewModelScope.launch {
-            val response = analisisUseCase.invoke(direccionData);
+            val response = geocodificadorUseCase.invoke(geocodificadorRequest);
             _data.value = response;
+
+            Log.i("OSCAR", data.value.toString());
         }
     }
+
 
 
 
