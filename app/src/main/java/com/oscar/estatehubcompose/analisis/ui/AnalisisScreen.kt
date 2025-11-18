@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Woman
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -307,13 +308,13 @@ fun Mapa(
                 .align(Alignment.BottomCenter)
                 .padding(10.dp)
         ) {
-            CardPropiedad(data)
+            CardPropiedad(data, analisisViewModel)
         }
     }
 }
 
 @Composable
-fun CardPropiedad(data: GeocodificadorInfo?) {
+fun CardPropiedad(data: GeocodificadorInfo?, analisisViewModel: AnalisisViewModel) {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -387,7 +388,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
         AnimatedVisibility(
             visible = expanded
         ) {
-            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data);
+            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data, analisisViewModel );
         }
     }
 
@@ -401,7 +402,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
 
 
 @Composable
-fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
+fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, analisisViewModel: AnalisisViewModel){
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var expanded2 by rememberSaveable { mutableStateOf(false) }
@@ -427,7 +428,7 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
                     Text("Informacion Geografica");
                 }
                 AnimatedVisibility(visible = expanded) {
-                    Column(Modifier.padding(5.dp)) {
+                    Column(Modifier.padding(10.dp)) {
                         Text("Informacion general:",
                             style = TextStyle(
                                 fontSize = 16.sp,
@@ -505,8 +506,15 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
             }
         }
 
+        OutlinedButton(onClick = {
+            analisisViewModel.analizarGemini(data?.colonia ?: "", data?.codigoPostal ?: "",data?.localidad ?: "", data?.estado ?: "")
+        }) {
+            Text("Analizar")
+        }
+
         Column(modifier.clickable{
             expanded2 = !expanded2
+
         }) {
             Spacer(Modifier.padding(10.dp))
 
@@ -525,6 +533,7 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
                 Text("Enriquecer informacion");
             }
             AnimatedVisibility(visible = expanded2) {
+                Column(Modifier.padding(10.dp)) {  }
                 Text("INFORMACION PARA ANALIZAR") }
 
 

@@ -11,6 +11,7 @@ import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRe
 import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
 import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
 import com.oscar.estatehubcompose.analisis.domain.AnalisisUseCase
+import com.oscar.estatehubcompose.analisis.domain.GeminiUseCase
 import com.oscar.estatehubcompose.analisis.domain.geocodificadorUseCase
 import com.oscar.estatehubcompose.helpers.DataStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AnalisisViewModel @Inject constructor(private val analisisUseCase: AnalisisUseCase,
                                             private val geocodificadorUseCase: geocodificadorUseCase,
+                                            private val geminiUseCase: GeminiUseCase,
                                             private val dataStoreManager: DataStoreManager): ViewModel(){
 
 
@@ -50,6 +52,13 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
             _data.value = response;
 
             Log.i("OSCAR", data.value.toString());
+        }
+    }
+
+    fun analizarGemini(colonia: String, codigoPostal:String, ciudad:String, estado:String){
+        viewModelScope.launch {
+            val response = geminiUseCase.invoke(colonia, codigoPostal, ciudad, estado);
+            Log.i("OSCAR", response.toString());
         }
     }
 

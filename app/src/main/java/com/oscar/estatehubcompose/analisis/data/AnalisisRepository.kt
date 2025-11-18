@@ -6,15 +6,19 @@
     import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
     import com.oscar.estatehubcompose.analisis.data.network.AnalisisService
     import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
+    import com.oscar.estatehubcompose.analisis.data.network.request.Content
+    import com.oscar.estatehubcompose.analisis.data.network.request.GeminiRequest
     import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
+    import com.oscar.estatehubcompose.analisis.data.network.request.Part
     import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
+    import com.oscar.estatehubcompose.analisis.data.network.response.GeminiResponse
     import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
     import javax.inject.Inject
 
     class AnalisisRepository @Inject constructor(private val analisisService: AnalisisService){
 
         suspend fun analizar(analisisRequest: AnalisisRequest): AnalisisResponse? {
-            return analisisService.analizar(analisisRequest)
+            return analisisService.analizar(analisisRequest);
         }
 
         suspend fun geocodificar(geocodificadorRequest: GeocodificadorRequest): GeocodificadorInfo? {
@@ -85,6 +89,62 @@
             )
 
             return geocodificadorInfo
+        }
+
+
+        suspend fun geminiAnalizar(colonia: String,
+                                   codigoPostal: String,
+                                   ciudad:String,
+                                   estado:String): GeminiResponse? {
+
+            val prompt = """
+        colonia: $colonia cp: $codigoPostal ciudad: $ciudad estado: $estado
+        
+        1. TAREA: Realiza un análisis de precios promedio (compra/renta), rentabilidad (Cap Rate), plusvalía inferida y genera recomendaciones de negocio para la zona de búsqueda.
+        
+        2. DATOS DE ENTRADA: La zona de búsqueda y los datos socioeconómicos serán proporcionados a continuación en el input.
+        
+        3. FORMATO DE SALIDA REQUERIDO: SIEMPRE devolverás la respuesta en el siguiente formato JSON, sin excepción, reemplazando los valores (0, "", etc.) por los datos analizados:
+        
+        {
+          "compra": {
+            "casa": 0,
+            "local_comercial": 0,
+            "departamento": 0
+          },
+          "renta": {
+            "casa": 0,
+            "local_comercial": 0,
+            "departamento": 0
+          },
+          "recomendacion_negocio": [
+            {
+              "sector": "",
+              "oportunidad": "",
+              "descripcion": ""
+            }
+          ],
+          "rentabilidad_neta": {
+            "explicacion_de_que_es": "",
+            "local_comercial": "",
+            "departamento": "",
+            "casa": ""
+          },
+          "plusvalia_recomendada": {
+            "tendencia": "",
+            "explicacion_sencilla": "",
+            "aumento_valor_aprox_5_anios": ""
+          }
+        }
+    """.trimIndent()
+            val request = GeminiRequest(contents = listOf(
+                Content(
+                    parts = listOf(Part(prompt))
+                )
+            ));
+
+            return analisisService.analizarGemini(request);
+
         }
 
     }

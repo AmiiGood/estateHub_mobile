@@ -1,6 +1,7 @@
 package com.oscar.estatehubcompose.core.DI
 
 import com.oscar.estatehubcompose.analisis.data.network.AnalisisClient
+import com.oscar.estatehubcompose.analisis.data.network.GeminiClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
 import com.oscar.estatehubcompose.register.data.network.RegisterClient
 import dagger.Module
@@ -10,8 +11,17 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class EstateHubRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class GeminiRetrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -19,6 +29,7 @@ class NetworkModule {
 
     @Singleton
     @Provides
+    @EstateHubRetrofit
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
             .baseUrl("http://192.168.1.81:3000/api/")
@@ -26,21 +37,36 @@ class NetworkModule {
             .build()
     };
 
+
+    @Singleton
+    @Provides
+    @GeminiRetrofit
+    fun provideGeminiRetrofit(): Retrofit{
+        return Retrofit.Builder().baseUrl("https://generativelanguage.googleapis.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
     @Provides
     @Singleton
-    fun provideLoginClient(retrofit: Retrofit): LoginClient{
+    fun provideGeminiClient(@GeminiRetrofit retrofit: Retrofit): GeminiClient {
+        return retrofit.create(GeminiClient::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideLoginClient(@EstateHubRetrofit retrofit: Retrofit): LoginClient{
         return retrofit.create(LoginClient::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideRegisterClient(retrofit: Retrofit): RegisterClient {
+    fun provideRegisterClient(@EstateHubRetrofit retrofit: Retrofit): RegisterClient {
         return retrofit.create(RegisterClient::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideAnalisisClient(retrofit: Retrofit): AnalisisClient {
+    fun provideAnalisisClient(@EstateHubRetrofit retrofit: Retrofit): AnalisisClient {
         return retrofit.create(AnalisisClient::class.java)
     }
 };
