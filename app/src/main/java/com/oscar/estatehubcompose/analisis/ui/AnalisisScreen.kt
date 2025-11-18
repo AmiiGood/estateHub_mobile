@@ -249,7 +249,7 @@ fun Mapa(
         Box(
             Modifier
                 .align(Alignment.BottomCenter)
-                .padding(10.dp)
+                .padding(5.dp)
         ) {
             CardPropiedad(data)
         }
@@ -270,20 +270,25 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
             }
             .shadow(8.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(16.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        Column(verticalArrangement = Arrangement.Bottom) {
+        Column(modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.White)
+           .padding(10.dp),
+            verticalArrangement = Arrangement.Bottom) {
             Text(
                 "${data?.codigoPostal}",
                 style = TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Parkinsans
-                )
+                ),
+                color = MaterialTheme.colorScheme.primary
             )
 
             Text(
@@ -292,7 +297,8 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = Parkinsans
-                )
+                ),
+                color = MaterialTheme.colorScheme.primary
             )
 
 
