@@ -98,47 +98,48 @@
 
             val prompt = """
     colonia: $colonia cp: $codigoPostal ciudad: $ciudad estado: $estado
-    
+
     info_demografica: ${geocodificadorInfo}
     INSTRUCCIONES CRÍTICAS:
-    1. Tu respuesta DEBE ser ÚNICAMENTE un objeto JSON válido
-    2. NO uses bloques de código markdown (``` ```)
-    3. NO uses ningún formato markdown
-    4. NO agregues explicaciones antes o después del JSON
-    5. La primera línea debe empezar con {
-    6. La última línea debe terminar con }
-    
-    TAREA: Realiza un análisis de precios promedio (compra/renta), rentabilidad (Cap Rate), plusvalía inferida y genera recomendaciones de negocio toma en cuenta la informacion demografica que te mande.
-    
-    FORMATO REQUERIDO (responde SOLO esto, sin nada más):
+    1. Tu respuesta DEBE ser ÚNICAMENTE un objeto JSON válido, sin explicaciones.
+    2. NO uses bloques de código markdown (``````).
+    3. La primera línea debe empezar con { y la última con }.
+    4. Basa los precios en promedios para México en 2025.
+
+    TAREA: Genera una estimación de precios y oportunidades de negocio para la ubicación proporcionada.
+
+    FORMATO REQUERIDO (responde SOLO esto):
     {
       "compra": {
-        "casa": 0,
-        "local_comercial": 0,
-        "departamento": 0
+        "casa": 3850000,
+        "local_comercial": 4200000,
+        "departamento": 2950000
       },
       "renta": {
-        "casa": 0,
-        "local_comercial": 0,
-        "departamento": 0
+        "casa": 22000,
+        "local_comercial": 28000,
+        "departamento": 16500
       },
       "recomendacion_negocio": [
         {
-          "sector": "",
-          "oportunidad": "",
-          "descripcion": ""
+          "sector": "Comercio de proximidad",
+          "oportunidad": "Mini-supermercado o tienda de conveniencia 24h",
+          "descripcion": "Dada la densidad habitacional inferida y el perfil residencial, existe alta demanda recurrente de insumos básicos sin necesidad de grandes traslados."
+        },
+        {
+          "sector": "Servicios de salud",
+          "oportunidad": "Farmacia con consultorio médico adyacente",
+          "descripcion": "El perfil demográfico sugiere una necesidad constante de servicios de salud de primer contacto, ideal para locales en esquinas o avenidas principales."
         }
       ],
       "rentabilidad_neta": {
-        "explicacion_de_que_es": "",
-        "local_comercial": "",
-        "departamento": "",
-        "casa": ""
+        "local_comercial": "7.5% - 8.5%",
+        "departamento": "5.5% - 6.2%",
+        "casa": "4.8% - 5.5%"
       },
       "plusvalia_recomendada": {
-        "tendencia": "",
-        "explicacion_sencilla": "",
-        "aumento_valor_aprox_5_anios": ""
+        "tendencia": "Alza moderada sostenida",
+        "aumento_valor_aprox_5_anios": "18% - 22%"
       }
     }
 """.trimIndent()

@@ -13,6 +13,6 @@ data class Renta(var casa: Double, var local_comercial: Double, var departamento
 
 data class Recomendacion_negocio (var sector: String, var oportunidad: String, var descripcion: String){}
 
-data class Rentabilidad_neta (var tendencia: String, var explicacion_sencilla: String, var aumento_valor_aprox_5_anios: String){}
+data class Rentabilidad_neta (var local_comercial:String ,var departamento: String, var casa: String){}
 
-data class Plusvalia_recomendada(var tendencia: String, var explicacion_sencilla: String, var aumento_valor_aprox_5_anios: String){}
+data class Plusvalia_recomendada(var tendencia: String, var aumento_valor_aprox_5_anios: String){}

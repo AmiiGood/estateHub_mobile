@@ -41,6 +41,9 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
         _codigoPostal.value = codigoPostal;
     }
 
+    fun resetDataGemini (){
+        _dataGemini.value = null;
+    }
 
 
 
