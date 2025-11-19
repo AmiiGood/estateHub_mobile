@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.House
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightbulbCircle
 import androidx.compose.material.icons.filled.LocalParking
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.LocationOn
@@ -695,6 +696,36 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, dataGemini
                         "$${dataGemini?.plusvalia_recomendada?.aumento_valor_aprox_5_anios ?: "0.0%"}"
                     );
 
+
+                    //Recomendacion de negocios
+                    Spacer(Modifier.padding(10.dp))
+                    Text(
+                        "Recomendaciones:",
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        ));
+
+                    dataGemini.recomendacion_negocio.forEach {
+
+                        Atributo2(
+                            Modifier,
+                            Icons.Filled.LightbulbCircle,
+                            color = MaterialTheme.colorScheme.primary,
+                            "Sector: ",
+                            "${it.sector}"
+                        );
+                        Text(
+                            "${it.descripcion}",
+                            style = TextStyle(
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = Parkinsans,
+                                color = MaterialTheme.colorScheme.primary
+                            ));
+                    }
 
                 }
 

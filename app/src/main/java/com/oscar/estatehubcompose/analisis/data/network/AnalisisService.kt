@@ -37,7 +37,7 @@ class AnalisisService @Inject constructor(private val analisisClient: AnalisisCl
         return withContext(Dispatchers.IO){
 
             try {
-                val response = geminiClient.generateContent("AIzaSyDra3UJUvOZnpYwm7bhimx4Mwykbq5jpm0",geminiRequest);
+                val response = geminiClient.generateContent("",geminiRequest);
                 Log.i("OSCAR", response.toString());
                 response;
             }catch (e: Exception){
