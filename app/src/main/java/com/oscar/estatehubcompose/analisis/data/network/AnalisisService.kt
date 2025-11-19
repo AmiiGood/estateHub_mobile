@@ -17,20 +17,34 @@ class AnalisisService @Inject constructor(private val analisisClient: AnalisisCl
 
 
     suspend fun analizar(analisisRequest: AnalisisRequest): AnalisisResponse? {
-        return withContext(Dispatchers.IO){
-            val response = analisisClient.analizar(analisisRequest);
-            Log.i("OSCAR", "${response}");
-            response.body();
+
+        try{
+            return withContext(Dispatchers.IO){
+                val response = analisisClient.analizar(analisisRequest);
+                Log.i("OSCAR", "${response}");
+                response.body();
+            }
+        }catch (e: Exception){
+            Log.e("OSCAR", "Error: ${e.message}")
+            return null;
         }
+
     }
 
 
     suspend fun geocodificar(geocodificadorRequest: GeocodificadorRequest): GeocodificadorResponse? {
-        return withContext(Dispatchers.IO){
-            val response = analisisClient.geocodificar(geocodificadorRequest);
-            Log.i("OSCAR", "${response}");
-            response.body();
+
+        try{
+            return withContext(Dispatchers.IO){
+                val response = analisisClient.geocodificar(geocodificadorRequest);
+                Log.i("OSCAR", "${response}");
+                response.body();
+            }
+        }catch (e: Exception){
+            Log.e("OSCAR", "Error: ${e.message}")
+            return null;
         }
+
     }
 
     suspend fun analizarGemini(geminiRequest: GeminiRequest): GeminiResponse? {
