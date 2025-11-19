@@ -1,7 +1,8 @@
 package com.oscar.estatehubcompose.core.DI
-
+import com.oscar.estatehubcompose.BuildConfig
 import com.oscar.estatehubcompose.analisis.data.network.AnalisisClient
 import com.oscar.estatehubcompose.analisis.data.network.GeminiClient
+import com.oscar.estatehubcompose.properties.data.network.PropertyClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
 import com.oscar.estatehubcompose.register.data.network.RegisterClient
 import dagger.Module
@@ -28,13 +29,13 @@ annotation class GeminiRetrofit
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
-
+    private val BASE_URL = BuildConfig.BASE_URL;
     @Singleton
     @Provides
     @EstateHubRetrofit
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.1.81:3000/api/")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     };
@@ -78,6 +79,13 @@ class NetworkModule {
     @Singleton
     fun provideAnalisisClient(@EstateHubRetrofit retrofit: Retrofit): AnalisisClient {
         return retrofit.create(AnalisisClient::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun providePropertyClient(@EstateHubRetrofit retrofit: Retrofit): PropertyClient {
+        return retrofit.create(PropertyClient::class.java)
     }
 };
 
