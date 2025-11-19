@@ -64,6 +64,7 @@ class NetworkModule {
     fun provideGeminiClient(@GeminiRetrofit retrofit: Retrofit): GeminiClient {
         return retrofit.create(GeminiClient::class.java)
     }
+    
     @Provides
     @Singleton
     fun provideLoginClient(@EstateHubRetrofit retrofit: Retrofit): LoginClient{
