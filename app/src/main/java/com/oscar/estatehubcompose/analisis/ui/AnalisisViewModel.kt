@@ -6,11 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
-import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
 import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
-import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
-import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
+import com.oscar.estatehubcompose.analisis.data.network.response.ParsedGeminiResponse
 import com.oscar.estatehubcompose.analisis.domain.AnalisisUseCase
+import com.oscar.estatehubcompose.analisis.domain.GeminiUseCase
 import com.oscar.estatehubcompose.analisis.domain.geocodificadorUseCase
 import com.oscar.estatehubcompose.helpers.DataStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,11 +19,15 @@ import javax.inject.Inject
 @HiltViewModel
 class AnalisisViewModel @Inject constructor(private val analisisUseCase: AnalisisUseCase,
                                             private val geocodificadorUseCase: geocodificadorUseCase,
+                                            private val geminiUseCase: GeminiUseCase,
                                             private val dataStoreManager: DataStoreManager): ViewModel(){
 
 
     private var _data = MutableLiveData< GeocodificadorInfo?>();
     var data: LiveData<GeocodificadorInfo?> = _data;
+
+    private var _dataGemini = MutableLiveData<ParsedGeminiResponse?>();
+    var dataGemini: LiveData<ParsedGeminiResponse?> = _dataGemini;
     private var _latitud = MutableLiveData<Double>();
     private var _longitud = MutableLiveData<Double>();
     private var _codigoPostal = MutableLiveData<Int>();
@@ -38,6 +41,9 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
         _codigoPostal.value = codigoPostal;
     }
 
+    fun resetDataGemini (){
+        _dataGemini.value = null;
+    }
 
 
 
@@ -50,6 +56,14 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
             _data.value = response;
 
             Log.i("OSCAR", data.value.toString());
+        }
+    }
+
+    fun analizarGemini(colonia: String, codigoPostal: String, ciudad: String, estado: String, geocodificadorInfo: GeocodificadorInfo?){
+        viewModelScope.launch {
+            val response = geminiUseCase.invoke(colonia, codigoPostal, ciudad, estado, geocodificadorInfo);
+            _dataGemini.value = response;
+            Log.i("OSCAR", response.toString());
         }
     }
 
