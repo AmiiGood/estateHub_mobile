@@ -28,10 +28,15 @@ android {
 
         val baseUrl = localProperties.getProperty("BASE_URL") ?: ""
         val apiKey = localProperties.getProperty("API_KEY") ?: ""
+        val geminiKey = localProperties.getProperty("GEMINI_KEY") ?: ""
+
+
 
         manifestPlaceholders["API_KEY"] = apiKey
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
         buildConfigField("String", "API_KEY", "\"$apiKey\"")
+        buildConfigField("String","GEMINI_KEY", "\"$geminiKey\"")
+
     }
 
     buildTypes {
