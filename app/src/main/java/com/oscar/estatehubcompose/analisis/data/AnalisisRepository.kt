@@ -1,20 +1,20 @@
     package com.oscar.estatehubcompose.analisis.data
 
-    import android.util.Log
-    import androidx.lifecycle.LiveData
-    import androidx.lifecycle.MutableLiveData
     import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
     import com.oscar.estatehubcompose.analisis.data.network.AnalisisService
     import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
+    import com.oscar.estatehubcompose.analisis.data.network.request.Content
+    import com.oscar.estatehubcompose.analisis.data.network.request.GeminiRequest
     import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
+    import com.oscar.estatehubcompose.analisis.data.network.request.Part
     import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
-    import com.oscar.estatehubcompose.analisis.data.network.response.GeocodificadorResponse
+    import com.oscar.estatehubcompose.analisis.data.network.response.GeminiResponse
     import javax.inject.Inject
 
     class AnalisisRepository @Inject constructor(private val analisisService: AnalisisService){
 
         suspend fun analizar(analisisRequest: AnalisisRequest): AnalisisResponse? {
-            return analisisService.analizar(analisisRequest)
+            return analisisService.analizar(analisisRequest);
         }
 
         suspend fun geocodificar(geocodificadorRequest: GeocodificadorRequest): GeocodificadorInfo? {
@@ -85,6 +85,72 @@
             )
 
             return geocodificadorInfo
+        }
+
+
+        suspend fun geminiAnalizar(
+            colonia: String,
+            codigoPostal: String,
+            ciudad: String,
+            estado: String,
+            geocodificadorInfo: GeocodificadorInfo?
+        ): GeminiResponse? {
+
+            val prompt = """
+    colonia: $colonia cp: $codigoPostal ciudad: $ciudad estado: $estado
+
+    info_demografica: ${geocodificadorInfo}
+    INSTRUCCIONES CRÍTICAS:
+    1. Tu respuesta DEBE ser ÚNICAMENTE un objeto JSON válido, sin explicaciones.
+    2. NO uses bloques de código markdown (``````).
+    3. La primera línea debe empezar con { y la última con }.
+    4. Basa los precios en promedios para México en 2025.
+
+    TAREA: Genera una estimación de precios y oportunidades de negocio para la ubicación proporcionada.
+
+    FORMATO REQUERIDO (responde SOLO esto):
+    {
+      "compra": {
+        "casa": 3850000,
+        "local_comercial": 4200000,
+        "departamento": 2950000
+      },
+      "renta": {
+        "casa": 22000,
+        "local_comercial": 28000,
+        "departamento": 16500
+      },
+      "recomendacion_negocio": [
+        {
+          "sector": "Comercio de proximidad",
+          "oportunidad": "Mini-supermercado o tienda de conveniencia 24h",
+          "descripcion": "Dada la densidad habitacional inferida y el perfil residencial, existe alta demanda recurrente de insumos básicos sin necesidad de grandes traslados."
+        },
+        {
+          "sector": "Servicios de salud",
+          "oportunidad": "Farmacia con consultorio médico adyacente",
+          "descripcion": "El perfil demográfico sugiere una necesidad constante de servicios de salud de primer contacto, ideal para locales en esquinas o avenidas principales."
+        }
+      ],
+      "rentabilidad_neta": {
+        "local_comercial": "7.5% - 8.5%",
+        "departamento": "5.5% - 6.2%",
+        "casa": "4.8% - 5.5%"
+      },
+      "plusvalia_recomendada": {
+        "tendencia": "Alza moderada sostenida",
+        "aumento_valor_aprox_5_anios": "18% - 22%"
+      }
+    }
+""".trimIndent()
+            val request = GeminiRequest(contents = listOf(
+                Content(
+                    parts = listOf(Part(prompt))
+                )
+            ));
+
+            return analisisService.analizarGemini(request);
+
         }
 
     }
