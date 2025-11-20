@@ -85,7 +85,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun providePropertyClient(retrofit: Retrofit): PropertyClient {
+    fun providePropertyClient(@EstateHubRetrofit retrofit: Retrofit): PropertyClient {
         return retrofit.create(PropertyClient::class.java)
     }
 }
