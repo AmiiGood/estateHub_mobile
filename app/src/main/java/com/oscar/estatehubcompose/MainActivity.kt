@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
     }
     @Composable
     fun AppNavigation(modifier: Modifier, navHostController: NavHostController){
-        NavHost(navHostController, "home", Modifier) {
+        NavHost(navHostController, "login", Modifier) {
             composable("login"){
                 LoginScreen(loginViewModel = loginViewModel, navController = navHostController)
             }
