@@ -1,9 +1,8 @@
 package com.oscar.estatehubcompose.core.DI
-
 import com.oscar.estatehubcompose.BuildConfig
 import com.oscar.estatehubcompose.analisis.data.network.AnalisisClient
-import com.oscar.estatehubcompose.properties.data.network.PropertyClient
 import com.oscar.estatehubcompose.analisis.data.network.GeminiClient
+import com.oscar.estatehubcompose.properties.data.network.PropertyClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
 import com.oscar.estatehubcompose.register.data.network.RegisterClient
 import dagger.Module
@@ -39,7 +38,7 @@ class NetworkModule {
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
+    };
 
 
     @Singleton
@@ -83,9 +82,11 @@ class NetworkModule {
         return retrofit.create(AnalisisClient::class.java)
     }
 
+
     @Provides
     @Singleton
     fun providePropertyClient(@EstateHubRetrofit retrofit: Retrofit): PropertyClient {
         return retrofit.create(PropertyClient::class.java)
     }
-}
+};
+

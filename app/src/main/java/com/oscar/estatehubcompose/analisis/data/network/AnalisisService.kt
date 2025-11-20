@@ -1,6 +1,7 @@
 package com.oscar.estatehubcompose.analisis.data.network
 
 import android.util.Log
+import com.oscar.estatehubcompose.BuildConfig
 import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
 import com.oscar.estatehubcompose.analisis.data.network.request.GeminiRequest
 import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
@@ -15,7 +16,7 @@ import javax.inject.Inject
 class AnalisisService @Inject constructor(private val analisisClient: AnalisisClient,
                                           private val geminiClient: GeminiClient) {
 
-
+    private val GEMINI_KEY = BuildConfig.GEMINI_KEY;
     suspend fun analizar(analisisRequest: AnalisisRequest): AnalisisResponse? {
 
         try{
@@ -48,10 +49,11 @@ class AnalisisService @Inject constructor(private val analisisClient: AnalisisCl
     }
 
     suspend fun analizarGemini(geminiRequest: GeminiRequest): GeminiResponse? {
+
         return withContext(Dispatchers.IO){
 
             try {
-                val response = geminiClient.generateContent("",geminiRequest);
+                val response = geminiClient.generateContent(GEMINI_KEY,geminiRequest);
                 Log.i("OSCAR", response.toString());
                 response;
             }catch (e: Exception){

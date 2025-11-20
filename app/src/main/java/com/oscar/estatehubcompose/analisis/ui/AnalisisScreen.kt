@@ -345,7 +345,7 @@ fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,a
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Bottom) {
                 Text(
-                    "${data?.codigoPostal}",
+                    "${data?.codigoPostal ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -355,7 +355,7 @@ fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,a
                 )
 
                 Text(
-                    "${data?.colonia}",
+                    "${data?.colonia ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -373,7 +373,7 @@ fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,a
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "${data?.localidad}",
+                    "${data?.localidad ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
@@ -382,7 +382,7 @@ fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,a
                     )
                 )
                 Text(
-                    "${data?.estado}",
+                    "${data?.estado ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
