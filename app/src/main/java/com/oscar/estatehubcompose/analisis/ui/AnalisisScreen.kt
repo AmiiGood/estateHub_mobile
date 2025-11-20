@@ -9,6 +9,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.AddBusiness
 import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.CreditCard
@@ -36,14 +37,21 @@ import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.HealthAndSafety
+import androidx.compose.material.icons.filled.House
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightbulbCircle
 import androidx.compose.material.icons.filled.LocalParking
+import androidx.compose.material.icons.filled.LocationCity
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Man
 import androidx.compose.material.icons.filled.Nature
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.filled.TheaterComedy
 import androidx.compose.material.icons.filled.Woman
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -88,6 +96,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
+import com.oscar.estatehubcompose.analisis.data.network.response.ParsedGeminiResponse
 import com.oscar.estatehubcompose.ui.theme.Parkinsans
 
 @SuppressLint("MissingPermission")
@@ -149,6 +158,7 @@ fun Mapa(
     //Se declara el cliente de places
     val placesClient = remember { Places.createClient(context) }
     val data by analisisViewModel.data.observeAsState();
+    val dataGemini by analisisViewModel.dataGemini.observeAsState();
 
 
 
@@ -307,13 +317,13 @@ fun Mapa(
                 .align(Alignment.BottomCenter)
                 .padding(10.dp)
         ) {
-            CardPropiedad(data)
+            CardPropiedad(data, dataGemini,analisisViewModel)
         }
     }
 }
 
 @Composable
-fun CardPropiedad(data: GeocodificadorInfo?) {
+fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,analisisViewModel: AnalisisViewModel) {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -335,7 +345,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.Bottom) {
                 Text(
-                    "${data?.codigoPostal}",
+                    "${data?.codigoPostal ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -345,7 +355,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
                 )
 
                 Text(
-                    "${data?.colonia}",
+                    "${data?.colonia ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -363,7 +373,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "${data?.localidad}",
+                    "${data?.localidad ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
@@ -372,7 +382,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
                     )
                 )
                 Text(
-                    "${data?.estado}",
+                    "${data?.estado ?: "Procesando.."}",
                     style = TextStyle(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Normal,
@@ -387,7 +397,7 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
         AnimatedVisibility(
             visible = expanded
         ) {
-            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data);
+            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data, dataGemini,analisisViewModel );
         }
     }
 
@@ -401,11 +411,17 @@ fun CardPropiedad(data: GeocodificadorInfo?) {
 
 
 @Composable
-fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
+fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?, analisisViewModel: AnalisisViewModel){
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var expanded2 by rememberSaveable { mutableStateOf(false) }
 
+
+    LaunchedEffect(expanded2) {
+        if(expanded2 == false){
+            analisisViewModel.resetDataGemini();
+        }
+    }
     Column {
         Column(modifier.clickable{
             expanded = !expanded
@@ -427,7 +443,7 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
                     Text("Informacion Geografica");
                 }
                 AnimatedVisibility(visible = expanded) {
-                    Column(Modifier.padding(5.dp)) {
+                    Column(Modifier.padding(10.dp)) {
                         Text("Informacion general:",
                             style = TextStyle(
                                 fontSize = 16.sp,
@@ -505,30 +521,220 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?){
             }
         }
 
-        Column(modifier.clickable{
-            expanded2 = !expanded2
-        }) {
-            Spacer(Modifier.padding(10.dp))
+        Button(
+            onClick = {
 
-            Row(Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp)),
-                verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(10.dp)){
-                    Icon(imageVector = Icons.Filled.Analytics,
-                        contentDescription = "Analizar",
-                        tint = MaterialTheme.colorScheme.secondary)
+            analisisViewModel.analizarGemini(data?.colonia ?: "", data?.codigoPostal ?: "",data?.localidad ?: "", data?.estado ?: "", data)
+            expanded2 = true
+        },
+            Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.secondary
+            ),) {
+            Text("Analizar")
+        }
+
+        AnimatedVisibility(visible = expanded2) {
+
+            Column(Modifier.clip(RoundedCornerShape(10.dp))
+                .padding(10.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())) {
+
+                if(dataGemini == null){
+                    Text("Analizando informacion...",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.secondary));
+                }else {
+                    Text(
+                        "Precios promedio:",
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    );
+
+                    //PRECIO PROMEDIO DE COMPRA
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.House,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Casa:",
+                        "$${dataGemini.compra.casa}"
+                    );
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.Apartment,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Departamento:",
+                        "$${dataGemini.compra.departamento}"
+                    );
+
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.AddBusiness,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Local comercial:",
+                        "$${dataGemini.compra.local_comercial}"
+                    );
+
+                    //PRECIO PROMEDIO DE RENTA
+                    Spacer(Modifier.padding(10.dp))
+
+                    Text(
+                        "Precios promedio de renta:",
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        ));
+
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.House,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Casa:",
+                        "$${dataGemini.renta.casa}"
+                    );
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.Apartment,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Departamento:",
+                        "$${dataGemini.renta.departamento}"
+                    );
+
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.AddBusiness,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Local comercial:",
+                        "$${dataGemini.renta.local_comercial}"
+                    );
+
+                    //Rentabilidad
+                    Spacer(Modifier.padding(10.dp))
+                    Text(
+                        "Rentabilidad:",
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        ));
+                    Text(
+                        "La rentabilidad es el rendimiento anual que se espera que tenga la propiedad:",
+                        style = TextStyle(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        ));
+
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.House,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Casa:",
+                        "$${dataGemini.rentabilidad_neta.casa ?: "0.0%"}"
+                    );
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.Apartment,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Departamento:",
+                        "$${dataGemini?.rentabilidad_neta?.departamento ?: "0.0%"}"
+                    );
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.AddBusiness,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Local comercial:",
+                        "$${dataGemini?.rentabilidad_neta?.local_comercial ?: "0.0%"}"
+                    );
+
+
+                    //Plusvalia
+                    Spacer(Modifier.padding(10.dp))
+                    Text(
+                        "Plusvalia:",
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        ));
+                    Text(
+                        "La plusvalia es el crecimiento que puede tener la zona en 5 años, mientras mayor sea la plusvalia mayor sera el costo de la propiedad",
+                        style = TextStyle(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        ));
+
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.ShowChart,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Tendencia:",
+                        "${dataGemini?.plusvalia_recomendada?.tendencia ?: "0.0%"}"
+                    );
+                    Atributo2(
+                        Modifier,
+                        Icons.Filled.LocationOn,
+                        color = MaterialTheme.colorScheme.primary,
+                        "Crecimiento en 5 años:",
+                        "$${dataGemini?.plusvalia_recomendada?.aumento_valor_aprox_5_anios ?: "0.0%"}"
+                    );
+
+
+                    //Recomendacion de negocios
+                    Spacer(Modifier.padding(10.dp))
+                    Text(
+                        "Recomendaciones:",
+                        style = TextStyle(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Parkinsans,
+                            color = MaterialTheme.colorScheme.primary
+                        ));
+
+                    dataGemini.recomendacion_negocio.forEach {
+
+                        Atributo2(
+                            Modifier,
+                            Icons.Filled.LightbulbCircle,
+                            color = MaterialTheme.colorScheme.primary,
+                            "Sector: ",
+                            "${it.sector}"
+                        );
+                        Text(
+                            "${it.descripcion}",
+                            style = TextStyle(
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = Parkinsans,
+                                color = MaterialTheme.colorScheme.primary
+                            ));
+                    }
+
                 }
 
-                Spacer(Modifier.padding(10.dp))
-                Text("Enriquecer informacion");
-            }
-            AnimatedVisibility(visible = expanded2) {
-                Text("INFORMACION PARA ANALIZAR") }
 
+            }
 
         }
+
+
     }
 
 
@@ -569,6 +775,40 @@ fun Atributo(modifier: Modifier, icono: ImageVector, color: Color,texto:String, 
     }
 }
 
+@Composable
+fun Atributo2(modifier: Modifier, icono: ImageVector, color: Color,texto:String, data: String){
+
+    Spacer(Modifier.padding(5.dp))
+    Column(modifier.fillMaxWidth()) {
+
+
+        Row (Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
+            Box(Modifier.clip(RoundedCornerShape(5.dp))
+                .background(color)
+                .padding(5.dp),
+                contentAlignment = Alignment.Center){
+                Icon(imageVector = icono, contentDescription = "NSE", Modifier.size(14.dp), tint = Color.White);
+            }
+
+            Spacer(Modifier.padding(5.dp))
+            Text(texto,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Parkinsans,
+                    color = Color(0xFF101828)
+                ));
+            Spacer(Modifier.padding(3.dp))
+            Text("${data}",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = Parkinsans,
+                    color = Color(0xFF101828)
+                ));
+        }
+    }
+}
 
 
 fun buscarLugares(

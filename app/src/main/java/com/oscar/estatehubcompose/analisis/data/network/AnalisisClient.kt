@@ -15,4 +15,5 @@ interface AnalisisClient {
 
     @POST("geocodificador/getInfo")
     suspend fun geocodificar(@Body geocodificadorRequest: GeocodificadorRequest): Response<GeocodificadorResponse>
+
 }
