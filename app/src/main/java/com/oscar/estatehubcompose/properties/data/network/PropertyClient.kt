@@ -1,8 +1,10 @@
 package com.oscar.estatehubcompose.properties.data.network
 
+import com.oscar.estatehubcompose.properties.data.network.response.PropertyDetailResponse
 import com.oscar.estatehubcompose.properties.data.network.response.PropertyResponse
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PropertyClient {
@@ -17,4 +19,9 @@ interface PropertyClient {
         @Query("banios") banios: Int? = null,
         @Query("publicadoEcommerce") publicadoEcommerce: Boolean = true
     ): Response<PropertyResponse>
+
+    @GET("propiedades/getPropiedad/{id}")
+    suspend fun getPropertyDetail(
+        @Path("id") id: Int
+    ): Response<PropertyDetailResponse>
 }
