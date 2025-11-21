@@ -104,7 +104,7 @@ fun AgendarCitaDialog(
                     }
                 }
 
-                // Content
+                // Contenido
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -328,7 +328,6 @@ fun AgendarCitaDialog(
         }
     }
 
-    // DatePicker Dialog - Material3 Compose
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDate ?: System.currentTimeMillis()
@@ -443,7 +442,6 @@ fun AgendarCitaDialog(
         }
     }
 
-    // TimePicker Dialog - Material3 Compose
     if (showTimePicker) {
         val timePickerState = rememberTimePickerState(
             initialHour = selectedTime?.first ?: 10,
