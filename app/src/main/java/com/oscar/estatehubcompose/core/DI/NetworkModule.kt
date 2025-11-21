@@ -2,6 +2,7 @@ package com.oscar.estatehubcompose.core.DI
 import com.oscar.estatehubcompose.BuildConfig
 import com.oscar.estatehubcompose.analisis.data.network.AnalisisClient
 import com.oscar.estatehubcompose.analisis.data.network.GeminiClient
+import com.oscar.estatehubcompose.citas.data.network.CitaClient
 import com.oscar.estatehubcompose.properties.data.network.PropertyClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
 import com.oscar.estatehubcompose.register.data.network.RegisterClient
@@ -87,6 +88,12 @@ class NetworkModule {
     @Singleton
     fun providePropertyClient(@EstateHubRetrofit retrofit: Retrofit): PropertyClient {
         return retrofit.create(PropertyClient::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCitaClient(@EstateHubRetrofit retrofit: Retrofit): CitaClient {
+        return retrofit.create(CitaClient::class.java)
     }
 };
 

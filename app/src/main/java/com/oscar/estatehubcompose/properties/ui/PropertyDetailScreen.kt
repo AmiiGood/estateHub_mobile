@@ -35,6 +35,9 @@ import com.oscar.estatehubcompose.properties.data.network.response.PropiedadDeta
 import com.oscar.estatehubcompose.ui.theme.*
 import java.text.NumberFormat
 import java.util.*
+import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
@@ -46,60 +49,122 @@ fun PropertyDetailScreen(
     val propertyDetail by propertyDetailViewModel.propertyDetail.observeAsState()
     val isLoading by propertyDetailViewModel.isLoading.observeAsState(false)
     val error by propertyDetailViewModel.error.observeAsState()
+    var showCitaDialog by remember { mutableStateOf(false) }
+    val citaSuccess by propertyDetailViewModel.citaSuccess.observeAsState(false)
+    val citaError by propertyDetailViewModel.citaError.observeAsState()
+    val isCreatingCita by propertyDetailViewModel.isCreatingCita.observeAsState(false)
+    val context = LocalContext.current
 
     LaunchedEffect(propertyId) {
         propertyDetailViewModel.loadPropertyDetail(propertyId)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Detalle de Propiedad") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = PrimaryPersonalized
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    titleContentColor = PrimaryPersonalized
-                )
-            )
-        },
-        bottomBar = {
-            propertyDetail?.let { propiedad ->
-                BottomBar(propiedad = propiedad)
+    LaunchedEffect(citaSuccess) {
+        if (citaSuccess) {
+            Toast.makeText(context, "Cita agendada exitosamente. Te contactaremos pronto.", Toast.LENGTH_LONG).show()
+            showCitaDialog = false
+            propertyDetailViewModel.clearCitaMessages()
+        }
+    }
+
+    LaunchedEffect(citaError) {
+        citaError?.let { error ->
+            if (error.isNotEmpty()) {
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                propertyDetailViewModel.clearCitaMessages()
             }
         }
-    ) { paddingValues ->
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = PrimaryPersonalized)
+    }
+
+    // ✅ SIN SCAFFOLD - Usando Column
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Contenido
+        Box(modifier = Modifier.weight(1f)) {
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = PrimaryPersonalized)
+                    }
+                }
+                error != null -> {
+                    ErrorView(
+                        error = error ?: "Error desconocido",
+                        onRetry = { propertyDetailViewModel.loadPropertyDetail(propertyId) },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                propertyDetail != null -> {
+                    PropertyDetailContent(
+                        propiedad = propertyDetail!!,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
-            error != null -> {
-                ErrorView(
-                    error = error ?: "Error desconocido",
-                    onRetry = { propertyDetailViewModel.loadPropertyDetail(propertyId) },
-                    modifier = Modifier.padding(paddingValues)
-                )
+        }
+
+        propertyDetail?.let { propiedad ->
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shadowElevation = 8.dp,
+                color = Color.White
+            ) {
+                Button(
+                    onClick = { showCitaDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                        .padding(bottom = 80.dp), // ✅ PADDING EXTRA PARA LA NAVBAR
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryPersonalized,
+                        contentColor = Color.White // ✅ ASEGURA QUE EL TEXTO SEA BLANCO
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarMonth,
+                        contentDescription = "Agendar",
+                        tint = Color.White, // ✅ ÍCONO BLANCO
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Agendar cita",
+                        style = TextStyle(
+                            fontFamily = Parkinsans,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = Color.White // ✅ TEXTO BLANCO EXPLÍCITO
+                        )
+                    )
+                }
             }
-            propertyDetail != null -> {
-                PropertyDetailContent(
-                    propiedad = propertyDetail!!,
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
+        }
+    }
+
+    // Diálogo
+    if (showCitaDialog) {
+        propertyDetail?.let { propiedad ->
+            val idUsuario by propertyDetailViewModel.currentUserId.observeAsState()
+            AgendarCitaDialog(
+                propertyId = propiedad.idPropiedad,
+                propertyTitle = propiedad.titulo,
+                onDismiss = { if (!isCreatingCita) showCitaDialog = false },
+                onConfirm = { fecha ->
+                    idUsuario?.let { userId ->
+                        propertyDetailViewModel.createCita(
+                            idPropiedad = propiedad.idPropiedad,
+                            idUsuario = userId,
+                            fecha = fecha
+                        )
+                    } ?: run {
+                        Toast.makeText(context, "Debes iniciar sesión para agendar una cita", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                isLoading = isCreatingCita
+            )
         }
     }
 }
@@ -555,7 +620,12 @@ fun AmenityChip(
 }
 
 @Composable
-fun BottomBar(propiedad: PropiedadDetail) {
+fun BottomBar(
+    propiedad: PropiedadDetail,
+    onAgendarClick: () -> Unit
+) {
+    val context = LocalContext.current
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shadowElevation = 8.dp,
@@ -567,32 +637,9 @@ fun BottomBar(propiedad: PropiedadDetail) {
                 .padding(20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedButton(
-                onClick = { /* TODO: Llamar */ },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = PrimaryPersonalized
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Phone,
-                    contentDescription = "Llamar",
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Llamar",
-                    style = TextStyle(
-                        fontFamily = Parkinsans,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp
-                    )
-                )
-            }
 
             Button(
-                onClick = { /* TODO: Agendar cita */ },
+                onClick = onAgendarClick,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(

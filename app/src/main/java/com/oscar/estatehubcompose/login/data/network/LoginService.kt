@@ -21,9 +21,17 @@ class LoginService @Inject constructor(private val loginClient: LoginClient,
                 val response = loginClient.login(loginRequest);
 
                 if(response.isSuccessful && response.body() != null){
-                    dataStoreManager.guardarToken(response.body()!!.token);
-                    Result.success(response.body());
+                    val loginResponse = response.body()!!
 
+                    // Guardar token
+                    dataStoreManager.guardarToken(loginResponse.token)
+
+                    // Guardar ID de usuario
+                    dataStoreManager.guardarIdUsuario(loginResponse.usuario.idUsuario)
+
+                    Log.i("LoginService", "Usuario ${loginResponse.usuario.idUsuario} logueado exitosamente")
+
+                    Result.success(loginResponse)
                 }else{
                     val errorMsg = when (response.code()) {
                         401 -> "Credenciales inválidas"
@@ -35,7 +43,7 @@ class LoginService @Inject constructor(private val loginClient: LoginClient,
                 }
 
             }catch (e: IOException){
-                Log.e("OSCAR", "Error de red: ${e.message}")
+                Log.e("LoginService", "Error de red: ${e.message}")
                 Result.failure(Exception("Sin conexión a internet"));
             }
         };
