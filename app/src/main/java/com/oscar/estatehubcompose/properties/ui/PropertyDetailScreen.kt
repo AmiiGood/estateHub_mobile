@@ -76,7 +76,6 @@ fun PropertyDetailScreen(
         }
     }
 
-    // ✅ SIN SCAFFOLD - Usando Column
     Column(modifier = Modifier.fillMaxSize()) {
         // Contenido
         Box(modifier = Modifier.weight(1f)) {
@@ -116,17 +115,17 @@ fun PropertyDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp)
-                        .padding(bottom = 80.dp), // ✅ PADDING EXTRA PARA LA NAVBAR
+                        .padding(bottom = 80.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = PrimaryPersonalized,
-                        contentColor = Color.White // ✅ ASEGURA QUE EL TEXTO SEA BLANCO
+                        contentColor = Color.White
                     )
                 ) {
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
                         contentDescription = "Agendar",
-                        tint = Color.White, // ✅ ÍCONO BLANCO
+                        tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -136,7 +135,7 @@ fun PropertyDetailScreen(
                             fontFamily = Parkinsans,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
-                            color = Color.White // ✅ TEXTO BLANCO EXPLÍCITO
+                            color = Color.White
                         )
                     )
                 }
@@ -308,7 +307,7 @@ fun PropertyDetailContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Badges de características especiales
+                // Badges de características
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -524,7 +523,6 @@ fun PropertyDetailContent(
                                     modifier = Modifier.weight(1f)
                                 )
                             }
-                            // Espaciador si solo hay un elemento en la fila
                             if (rowAmenidades.size == 1) {
                                 Spacer(modifier = Modifier.weight(1f))
                             }
@@ -537,11 +535,6 @@ fun PropertyDetailContent(
         // Mapa de ubicación
         item {
             PropertyMapSection(propiedad = propiedad)
-        }
-
-        // Espaciado final
-        item {
-            Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
@@ -743,7 +736,6 @@ fun PropertyMapSection(propiedad: PropiedadDetail) {
         propiedad.longitud.toDoubleOrNull() ?: 0.0
     )
 
-    // URL de Google Static Maps API para imagen estática
     val staticMapUrl = remember(propertyLocation) {
         buildString {
             append("https://maps.googleapis.com/maps/api/staticmap?")
@@ -845,7 +837,6 @@ fun PropertyMapSection(propiedad: PropiedadDetail) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Imagen estática del mapa - Mucho más ligera
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -855,7 +846,6 @@ fun PropertyMapSection(propiedad: PropiedadDetail) {
             shadowElevation = 4.dp
         ) {
             Box {
-                // Usar AsyncImage de Coil para la imagen estática del mapa
                 AsyncImage(
                     model = staticMapUrl,
                     contentDescription = "Mapa de ${propiedad.direccion}",
@@ -863,7 +853,6 @@ fun PropertyMapSection(propiedad: PropiedadDetail) {
                     contentScale = ContentScale.Crop
                 )
 
-                // Overlay sutil para indicar que es clickeable
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -896,7 +885,6 @@ fun PropertyMapSection(propiedad: PropiedadDetail) {
             }
         }
 
-        // Texto indicativo
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Toca el mapa para verlo en pantalla completa",
@@ -1010,7 +998,6 @@ fun FullScreenMapDialog(
                 )
             }
 
-            // Barra superior con botones
             Surface(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -1094,7 +1081,6 @@ fun FullScreenMapDialog(
                 }
             }
 
-            // Información en la parte inferior
             Surface(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
