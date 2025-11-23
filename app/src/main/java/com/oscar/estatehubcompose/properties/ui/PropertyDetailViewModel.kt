@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oscar.estatehubcompose.citas.data.network.request.CitaData
 import com.oscar.estatehubcompose.citas.data.network.request.CitaRequest
+import com.oscar.estatehubcompose.citas.data.network.response.HorarioDisponible
 import com.oscar.estatehubcompose.citas.domain.CitaUseCase
+import com.oscar.estatehubcompose.citas.domain.GetHorariosDisponiblesUseCase
 import com.oscar.estatehubcompose.helpers.DataStoreManager
 import com.oscar.estatehubcompose.properties.data.network.response.PropiedadDetail
 import com.oscar.estatehubcompose.properties.domain.PropertyDetailUseCase
@@ -20,6 +22,7 @@ import javax.inject.Inject
 class PropertyDetailViewModel @Inject constructor(
     private val propertyDetailUseCase: PropertyDetailUseCase,
     private val citaUseCase: CitaUseCase,
+    private val getHorariosDisponiblesUseCase: GetHorariosDisponiblesUseCase,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
@@ -43,6 +46,9 @@ class PropertyDetailViewModel @Inject constructor(
 
     private val _currentUserId = MutableLiveData<Int?>()
     val currentUserId: LiveData<Int?> = _currentUserId
+
+    private val _horariosDisponibles = MutableLiveData<List<HorarioDisponible>>()
+    val horariosDisponibles: LiveData<List<HorarioDisponible>> = _horariosDisponibles
 
     init {
         loadCurrentUserId()
@@ -122,6 +128,23 @@ class PropertyDetailViewModel @Inject constructor(
             dataStoreManager.getIdUsuario().collect { userId ->
                 _currentUserId.value = userId
                 Log.i("PropertyDetailVM", "Current user ID: $userId")
+            }
+        }
+    }
+
+    fun loadHorariosDisponibles(idPropiedad: Int, fecha: String) {
+        viewModelScope.launch {
+            try {
+                val response = getHorariosDisponiblesUseCase.invoke(idPropiedad, fecha)
+                if (response != null && response.success) {
+                    _horariosDisponibles.value = response.data
+                    Log.i("PropertyDetailVM", "Horarios cargados: ${response.data.size}")
+                } else {
+                    _horariosDisponibles.value = emptyList()
+                }
+            } catch (e: Exception) {
+                _horariosDisponibles.value = emptyList()
+                Log.e("PropertyDetailVM", "Error al cargar horarios: ${e.message}")
             }
         }
     }
