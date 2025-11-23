@@ -147,9 +147,15 @@ fun PropertyDetailScreen(
     if (showCitaDialog) {
         propertyDetail?.let { propiedad ->
             val idUsuario by propertyDetailViewModel.currentUserId.observeAsState()
+            val horariosDisponibles by propertyDetailViewModel.horariosDisponibles.observeAsState(emptyList())
+
             AgendarCitaDialog(
                 propertyId = propiedad.idPropiedad,
                 propertyTitle = propiedad.titulo,
+                horariosDisponibles = horariosDisponibles,
+                onFechaSelected = { fecha ->
+                    propertyDetailViewModel.loadHorariosDisponibles(propiedad.idPropiedad, fecha)
+                },
                 onDismiss = { if (!isCreatingCita) showCitaDialog = false },
                 onConfirm = { fecha ->
                     idUsuario?.let { userId ->

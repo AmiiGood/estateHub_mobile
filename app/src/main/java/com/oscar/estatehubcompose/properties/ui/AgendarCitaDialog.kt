@@ -1,7 +1,13 @@
 package com.oscar.estatehubcompose.properties.ui
 
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,12 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.oscar.estatehubcompose.citas.data.network.response.HorarioDisponible
 import com.oscar.estatehubcompose.ui.theme.Parkinsans
 import com.oscar.estatehubcompose.ui.theme.PrimaryPersonalized
 import com.oscar.estatehubcompose.ui.theme.SeventhPersonalized
 import com.oscar.estatehubcompose.ui.theme.ThirdPersonalized
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.isNotEmpty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,15 +38,23 @@ fun AgendarCitaDialog(
     propertyTitle: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    horariosDisponibles: List<HorarioDisponible> = emptyList(),
+    onFechaSelected: (String) -> Unit = {}
 ) {
     var selectedDate by remember { mutableStateOf<Long?>(null) }
     var selectedTime by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var showTimePicker by remember { mutableStateOf(false) }
 
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    val dateFormatISO = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -58,7 +74,6 @@ fun AgendarCitaDialog(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -128,16 +143,28 @@ fun AgendarCitaDialog(
                                 tint = Color(0xFF3B82F6),
                                 modifier = Modifier.size(20.dp)
                             )
-                            Text(
-                                text = "Selecciona la fecha y hora para tu visita. Te contactaremos pronto.",
-                                style = TextStyle(
-                                    fontSize = 13.sp,
-                                    fontFamily = Parkinsans,
-                                    fontWeight = FontWeight.Normal,
-                                    color = SeventhPersonalized,
-                                    lineHeight = 18.sp
+                            Column {
+                                Text(
+                                    text = "Horario de atención: 8:00 AM - 8:00 PM",
+                                    style = TextStyle(
+                                        fontSize = 13.sp,
+                                        fontFamily = Parkinsans,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = PrimaryPersonalized,
+                                        lineHeight = 18.sp
+                                    )
                                 )
-                            )
+                                Text(
+                                    text = "Las citas deben agendarse con al menos 1 día de anticipación",
+                                    style = TextStyle(
+                                        fontSize = 12.sp,
+                                        fontFamily = Parkinsans,
+                                        fontWeight = FontWeight.Normal,
+                                        color = SeventhPersonalized,
+                                        lineHeight = 16.sp
+                                    )
+                                )
+                            }
                         }
                     }
 
@@ -196,56 +223,96 @@ fun AgendarCitaDialog(
                         }
                     }
 
-                    // Time selector
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = "Hora de la visita",
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontFamily = Parkinsans,
-                                fontWeight = FontWeight.SemiBold,
-                                color = PrimaryPersonalized
+                    // Mostrar horarios disponibles si hay una fecha seleccionada
+                    if (selectedDate != null && horariosDisponibles.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Horarios disponibles (${horariosDisponibles.size})",
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontFamily = Parkinsans,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = PrimaryPersonalized
+                                )
                             )
-                        )
 
-                        OutlinedButton(
-                            onClick = { showTimePicker = true },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(3),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 200.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(horariosDisponibles) { horario ->
+                                    val isSelected = selectedTime?.let {
+                                        horario.horaLocal == String.format("%02d:%02d", it.first, it.second)
+                                    } ?: false
+
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(44.dp)
+                                            .clickable {
+                                                val parts = horario.horaLocal.split(":")
+                                                selectedTime = Pair(
+                                                    parts[0].toInt(),
+                                                    parts[1].toInt()
+                                                )
+                                            },
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (isSelected) PrimaryPersonalized else Color.White,
+                                        border = BorderStroke(
+                                            1.dp,
+                                            if (isSelected) PrimaryPersonalized else ThirdPersonalized
+                                        )
+                                    ) {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = horario.horaLocal,
+                                                style = TextStyle(
+                                                    fontSize = 13.sp,
+                                                    fontFamily = Parkinsans,
+                                                    fontWeight = FontWeight.Medium,
+                                                    color = if (isSelected) Color.White else PrimaryPersonalized
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else if (selectedDate != null && horariosDisponibles.isEmpty()) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = Color.White,
-                                contentColor = PrimaryPersonalized
-                            ),
-                            enabled = !isLoading
+                            color = Color(0xFFFEF3C7)
                         ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.padding(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = selectedTime?.let {
-                                        String.format("%02d:%02d", it.first, it.second)
-                                    } ?: "Seleccionar hora",
-                                    style = TextStyle(
-                                        fontSize = 14.sp,
-                                        fontFamily = Parkinsans,
-                                        fontWeight = if (selectedTime != null)
-                                            FontWeight.Medium else FontWeight.Normal,
-                                        color = if (selectedTime != null)
-                                            PrimaryPersonalized else SeventhPersonalized
-                                    )
-                                )
                                 Icon(
-                                    imageVector = Icons.Default.Schedule,
-                                    contentDescription = "Hora",
-                                    modifier = Modifier.size(20.dp),
-                                    tint = PrimaryPersonalized
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = Color(0xFFD97706),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "No hay horarios disponibles para esta fecha",
+                                    style = TextStyle(
+                                        fontSize = 13.sp,
+                                        fontFamily = Parkinsans,
+                                        fontWeight = FontWeight.Normal,
+                                        color = Color(0xFF92400E)
+                                    )
                                 )
                             }
                         }
@@ -282,7 +349,7 @@ fun AgendarCitaDialog(
                         Button(
                             onClick = {
                                 if (selectedDate != null && selectedTime != null) {
-                                    val calendar = Calendar.getInstance()
+                                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
                                     calendar.timeInMillis = selectedDate!!
                                     calendar.set(Calendar.HOUR_OF_DAY, selectedTime!!.first)
                                     calendar.set(Calendar.MINUTE, selectedTime!!.second)
@@ -339,6 +406,11 @@ fun AgendarCitaDialog(
                 TextButton(
                     onClick = {
                         selectedDate = datePickerState.selectedDateMillis
+                        selectedDate?.let { millis ->
+                            val fecha = dateFormatISO.format(Date(millis))
+                            Log.d("AgendarCitaDialog", "Fecha seleccionada para horarios: $fecha")
+                            onFechaSelected(fecha)
+                        }
                         showDatePicker = false
                     },
                     colors = ButtonDefaults.textButtonColors(
@@ -365,7 +437,7 @@ fun AgendarCitaDialog(
                         "Cancelar",
                         style = TextStyle(
                             fontFamily = Parkinsans,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Normal
                         )
                     )
                 }
@@ -381,44 +453,14 @@ fun AgendarCitaDialog(
                 selectedYearContentColor = Color.White,
                 selectedYearContainerColor = PrimaryPersonalized,
                 dayContentColor = PrimaryPersonalized,
-                disabledDayContentColor = SeventhPersonalized.copy(alpha = 0.3f),
                 selectedDayContentColor = Color.White,
                 selectedDayContainerColor = PrimaryPersonalized,
                 todayContentColor = PrimaryPersonalized,
-                todayDateBorderColor = PrimaryPersonalized,
-                dayInSelectionRangeContentColor = PrimaryPersonalized,
-                dayInSelectionRangeContainerColor = ThirdPersonalized
+                todayDateBorderColor = PrimaryPersonalized
             )
         ) {
             DatePicker(
                 state = datePickerState,
-                title = {
-                    Text(
-                        text = "Seleccionar fecha",
-                        modifier = Modifier.padding(start = 24.dp, top = 16.dp),
-                        style = TextStyle(
-                            fontFamily = Parkinsans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = PrimaryPersonalized
-                        )
-                    )
-                },
-                headline = {
-                    datePickerState.selectedDateMillis?.let {
-                        Text(
-                            text = dateFormat.format(Date(it)),
-                            modifier = Modifier.padding(start = 24.dp, bottom = 12.dp),
-                            style = TextStyle(
-                                fontFamily = Parkinsans,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 24.sp,
-                                color = PrimaryPersonalized
-                            )
-                        )
-                    }
-                },
-                showModeToggle = true,
                 colors = DatePickerDefaults.colors(
                     containerColor = Color.White,
                     titleContentColor = PrimaryPersonalized,
@@ -430,95 +472,13 @@ fun AgendarCitaDialog(
                     selectedYearContentColor = Color.White,
                     selectedYearContainerColor = PrimaryPersonalized,
                     dayContentColor = PrimaryPersonalized,
-                    disabledDayContentColor = SeventhPersonalized.copy(alpha = 0.3f),
                     selectedDayContentColor = Color.White,
                     selectedDayContainerColor = PrimaryPersonalized,
                     todayContentColor = PrimaryPersonalized,
                     todayDateBorderColor = PrimaryPersonalized,
-                    dayInSelectionRangeContentColor = PrimaryPersonalized,
-                    dayInSelectionRangeContainerColor = ThirdPersonalized
+                    disabledDayContentColor = SeventhPersonalized.copy(alpha = 0.3f)
                 )
             )
         }
-    }
-
-    if (showTimePicker) {
-        val timePickerState = rememberTimePickerState(
-            initialHour = selectedTime?.first ?: 10,
-            initialMinute = selectedTime?.second ?: 0,
-            is24Hour = true
-        )
-
-        AlertDialog(
-            onDismissRequest = { showTimePicker = false },
-            containerColor = Color.White,
-            title = {
-                Text(
-                    text = "Seleccionar hora",
-                    style = TextStyle(
-                        fontFamily = Parkinsans,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        color = PrimaryPersonalized
-                    )
-                )
-            },
-            text = {
-                TimePicker(
-                    state = timePickerState,
-                    colors = TimePickerDefaults.colors(
-                        clockDialColor = ThirdPersonalized,
-                        clockDialSelectedContentColor = Color.White,
-                        clockDialUnselectedContentColor = PrimaryPersonalized,
-                        selectorColor = PrimaryPersonalized,
-                        containerColor = Color.White,
-                        periodSelectorBorderColor = PrimaryPersonalized,
-                        periodSelectorSelectedContainerColor = PrimaryPersonalized,
-                        periodSelectorUnselectedContainerColor = Color.Transparent,
-                        periodSelectorSelectedContentColor = Color.White,
-                        periodSelectorUnselectedContentColor = PrimaryPersonalized,
-                        timeSelectorSelectedContainerColor = PrimaryPersonalized,
-                        timeSelectorUnselectedContainerColor = ThirdPersonalized,
-                        timeSelectorSelectedContentColor = Color.White,
-                        timeSelectorUnselectedContentColor = PrimaryPersonalized
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        selectedTime = Pair(timePickerState.hour, timePickerState.minute)
-                        showTimePicker = false
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = PrimaryPersonalized
-                    )
-                ) {
-                    Text(
-                        "Aceptar",
-                        style = TextStyle(
-                            fontFamily = Parkinsans,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showTimePicker = false },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = SeventhPersonalized
-                    )
-                ) {
-                    Text(
-                        "Cancelar",
-                        style = TextStyle(
-                            fontFamily = Parkinsans,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                }
-            }
-        )
     }
 }
