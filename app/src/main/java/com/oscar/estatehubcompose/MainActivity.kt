@@ -30,10 +30,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.android.libraries.places.api.Places
 import com.oscar.estatehubcompose.analisis.ui.AnalisisScreen
 import com.oscar.estatehubcompose.properties.ui.Property
@@ -41,6 +43,8 @@ import com.oscar.estatehubcompose.properties.ui.PropertyViewModel
 import com.oscar.estatehubcompose.analisis.ui.AnalisisViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
+import com.oscar.estatehubcompose.properties.ui.PropertyDetailScreen
+import com.oscar.estatehubcompose.properties.ui.PropertyDetailViewModel
 import com.oscar.estatehubcompose.register.ui.RegisterScreen
 import com.oscar.estatehubcompose.register.ui.RegisterViewModel
 import com.oscar.estatehubcompose.ui.theme.EstateHubComposeTheme
@@ -55,6 +59,7 @@ class MainActivity : ComponentActivity() {
     private val propertyViewModel: PropertyViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels();
     private val analisisViewModel: AnalisisViewModel by viewModels();
+    val propertyDetailViewModel: PropertyDetailViewModel by viewModels()
     private val apiKey = BuildConfig.API_KEY;
 
 
@@ -108,6 +113,17 @@ class MainActivity : ComponentActivity() {
             }
             composable("analisis"){
                 AnalisisScreen(modifier, analisisViewModel)
+            }
+            composable(
+                route = "propertyDetail/{propertyId}",
+                arguments = listOf(navArgument("propertyId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val propertyId = backStackEntry.arguments?.getInt("propertyId") ?: 0
+                PropertyDetailScreen(
+                    propertyId = propertyId,
+                    propertyDetailViewModel = propertyDetailViewModel,
+                    navController = navHostController
+                )
             }
         }
     }

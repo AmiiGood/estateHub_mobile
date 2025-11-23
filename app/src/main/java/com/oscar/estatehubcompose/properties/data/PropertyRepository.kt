@@ -1,6 +1,7 @@
 package com.oscar.estatehubcompose.properties.data
 
 import com.oscar.estatehubcompose.properties.data.network.PropertyService
+import com.oscar.estatehubcompose.properties.data.network.response.PropertyDetailResponse
 import com.oscar.estatehubcompose.properties.data.network.response.PropertyResponse
 import javax.inject.Inject
 
@@ -24,5 +25,9 @@ class PropertyRepository @Inject constructor(private val propertyService: Proper
             habitaciones = habitaciones,
             banios = banios
         )
+    }
+
+    suspend fun getPropertyDetail(id: Int): PropertyDetailResponse? {
+        return propertyService.getPropertyDetail(id)
     }
 }

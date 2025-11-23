@@ -103,6 +103,9 @@ fun Property(modifier: Modifier, propertyViewModel: PropertyViewModel, navContro
                         onCategorySelected = { propertyViewModel.updateCategory(it) },
                         onSearch = { query -> propertyViewModel.searchByLocation(query) },
                         onFilterClick = { showFilterDialog = true },
+                        onPropertyClick = { propertyId ->
+                            navController?.navigate("propertyDetail/$propertyId")
+                        },
                         isLoading = isLoading
                     )
                 }
@@ -133,6 +136,7 @@ fun propertyContent(
     onCategorySelected: (String) -> Unit,
     onSearch: (String) -> Unit,
     onFilterClick: () -> Unit,
+    onPropertyClick: (Int) -> Unit = {},
     isLoading: Boolean = false
 ) {
     var searchText by remember { mutableStateOf("") }
@@ -174,7 +178,10 @@ fun propertyContent(
         }
 
         items(propiedades) { propiedad ->
-            PropertyCard(propiedad = propiedad)
+            PropertyCard(
+                propiedad = propiedad,
+                onPropertyClick = onPropertyClick
+            )
         }
 
         item {
@@ -356,7 +363,7 @@ fun CategoryChip(
 }
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun PropertyCard(propiedad: Propiedad) {
+fun PropertyCard(propiedad: Propiedad, onPropertyClick: (Int) -> Unit = {}) {
     val pagerState = rememberPagerState()
     val imageCount = propiedad.imagenes.size
 
@@ -364,7 +371,7 @@ fun PropertyCard(propiedad: Propiedad) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp)
-            .clickable { /* Navegar a detalles */ }
+            .clickable { onPropertyClick(propiedad.idPropiedad) }
     ) {
         Box(
             modifier = Modifier
