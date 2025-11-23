@@ -3,6 +3,7 @@ package com.oscar.estatehubcompose.citas.data
 import com.oscar.estatehubcompose.citas.data.network.CitaService
 import com.oscar.estatehubcompose.citas.data.network.request.CitaRequest
 import com.oscar.estatehubcompose.citas.data.network.response.CitaResponse
+import com.oscar.estatehubcompose.citas.data.network.response.HorariosDisponiblesResponse
 import javax.inject.Inject
 
 class CitaRepository @Inject constructor(
@@ -10,5 +11,12 @@ class CitaRepository @Inject constructor(
 ) {
     suspend fun createCita(token: String, citaRequest: CitaRequest): Result<CitaResponse> {
         return citaService.createCita(token, citaRequest)
+    }
+
+    suspend fun getHorariosDisponibles(
+        idPropiedad: Int,
+        fecha: String
+    ): HorariosDisponiblesResponse? {
+        return citaService.getHorariosDisponibles(idPropiedad, fecha)
     }
 }

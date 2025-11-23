@@ -13,3 +13,16 @@ data class CitaResponse(
     @SerializedName("data")
     val data: Cita?
 )
+
+data class HorariosDisponiblesResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("fecha") val fecha: String,
+    @SerializedName("data") val data: List<HorarioDisponible>,
+    @SerializedName("count") val count: Int
+)
+
+data class HorarioDisponible(
+    @SerializedName("fecha") val fecha: String,
+    @SerializedName("horaLocal") val horaLocal: String,
+    @SerializedName("disponible") val disponible: Boolean
+)
