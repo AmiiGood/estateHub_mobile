@@ -43,6 +43,8 @@ import com.oscar.estatehubcompose.properties.ui.PropertyViewModel
 import com.oscar.estatehubcompose.analisis.ui.AnalisisViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
+import com.oscar.estatehubcompose.perfil.ui.PerfilScreen
+import com.oscar.estatehubcompose.perfil.ui.PerfilViewModel
 import com.oscar.estatehubcompose.properties.ui.PropertyDetailScreen
 import com.oscar.estatehubcompose.properties.ui.PropertyDetailViewModel
 import com.oscar.estatehubcompose.register.ui.RegisterScreen
@@ -59,6 +61,7 @@ class MainActivity : ComponentActivity() {
     private val propertyViewModel: PropertyViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels();
     private val analisisViewModel: AnalisisViewModel by viewModels();
+    private val perfilViewModel: PerfilViewModel by viewModels();
     val propertyDetailViewModel: PropertyDetailViewModel by viewModels()
     private val apiKey = BuildConfig.API_KEY;
 
@@ -124,6 +127,10 @@ class MainActivity : ComponentActivity() {
                     propertyDetailViewModel = propertyDetailViewModel,
                     navController = navHostController
                 )
+            }
+
+            composable("perfil"){
+                PerfilScreen(modifier, perfilViewModel,navHostController)
             }
         }
     }
