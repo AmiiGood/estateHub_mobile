@@ -108,9 +108,7 @@ class MainActivity : ComponentActivity() {
             composable("registro"){
                 RegisterScreen(registerViewModel = registerViewModel, navController = navHostController)
             }
-            composable("home"){
-                // HomeScreen(modifier, navController = navHostController)
-            }
+
             composable("mercado"){
                 Property(modifier, propertyViewModel = propertyViewModel, navController = navHostController)
             }
@@ -138,9 +136,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Navbar(navController: NavController){
         var selectedItem by rememberSaveable { mutableStateOf(0) }
-        val items = listOf("home", "analisis", "mercado","Perfil");
-        val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
-        val unselectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
+        val items = listOf("mercado","analisis", "Perfil");
+        val selectedIcons = listOf(Icons.Filled.AddHome,Icons.Filled.Map,  Icons.Filled.AccountCircle)
+        val unselectedIcons = listOf(Icons.Filled.AddHome, Icons.Filled.Map, Icons.Filled.AccountCircle)
 
         NavigationBar(modifier = Modifier,
             containerColor = MaterialTheme.colorScheme.primary,
