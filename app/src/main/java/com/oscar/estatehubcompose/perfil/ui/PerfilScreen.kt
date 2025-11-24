@@ -1,15 +1,23 @@
 package com.oscar.estatehubcompose.perfil.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -21,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -35,23 +45,18 @@ import com.oscar.estatehubcompose.ui.theme.Parkinsans
 fun PerfilScreen(modifier: Modifier,perfilViewModel: PerfilViewModel , navController: NavController ){
 
     val propiedadesData by perfilViewModel.propiedadesData.observeAsState(null);
+    val usuarioData by perfilViewModel.perfilData.observeAsState();
+
+
+
 
     LaunchedEffect(Unit) {
+        perfilViewModel.getUsuario();
         perfilViewModel.getPropiedades();
     }
 
     Column(modifier) {
-        PerfilData(propiedadesData)
-    }
-}
 
-
-@Composable
-fun PerfilData(propiedadesResponse: PropiedadesResponse?){
-
-
-
-    Column(Modifier.padding(15.dp)) {
 
         Text(
             "Mi perfil",
@@ -62,6 +67,23 @@ fun PerfilData(propiedadesResponse: PropiedadesResponse?){
             ),
             color = MaterialTheme.colorScheme.primary
         );
+        PerfilData(propiedadesData,
+            usuarioData?.data?.nombre,
+            usuarioData?.data?.telefono)
+    }
+}
+
+
+@Composable
+fun PerfilData(propiedadesResponse: PropiedadesResponse?,
+               nombre: String?, telefono:String?){
+
+    val letraUser = nombre?.split("");
+    Log.i("OSCAR", letraUser.toString())
+
+
+    Column(Modifier.padding(15.dp).verticalScroll(rememberScrollState())) {
+
         Spacer(Modifier.padding(15.dp))
 
         Column(Modifier
@@ -78,7 +100,7 @@ fun PerfilData(propiedadesResponse: PropiedadesResponse?){
                 ){
 
                 Text(
-                    "O",
+                    "${letraUser?.get(1) ?: ""}",
                     style = TextStyle(
                         fontSize = 70.sp,
                         fontFamily = Parkinsans,
@@ -89,24 +111,28 @@ fun PerfilData(propiedadesResponse: PropiedadesResponse?){
             }
 
             Spacer(Modifier.padding(10.dp))
-            Text(
-                "Oscar",
-                style = TextStyle(
-                    fontSize = 25.sp,
-                    fontFamily = Parkinsans,
-                    fontWeight = FontWeight.SemiBold
-                ),
-                color = MaterialTheme.colorScheme.primary
-            );
-           Text(
-                "4775872265",
-                style = TextStyle(
-                    fontSize = 15.sp,
-                    fontFamily = Parkinsans,
-                    fontWeight = FontWeight.Medium
-                ),
-                color = MaterialTheme.colorScheme.primary
-            );
+            if (nombre != null) {
+                Text(
+                    nombre,
+                    style = TextStyle(
+                        fontSize = 25.sp,
+                        fontFamily = Parkinsans,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            };
+            if (telefono != null) {
+                Text(
+                    telefono,
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontFamily = Parkinsans,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            };
         }
 
 
@@ -122,15 +148,66 @@ fun PerfilData(propiedadesResponse: PropiedadesResponse?){
         );
 
 
-        propiedadesResponse?.data?.firstOrNull()?.imagenes?.firstOrNull()?.let { imagen ->
-            AsyncImage(
-                modifier = Modifier.size(100.dp),
-                model = imagen.urlImagen,
-                contentDescription = "Primera imagen de propiedad"
-            )
-        }
+       propiedadesResponse?.data?.let {
+
+           it.forEach { prop ->
+
+               Spacer(Modifier.padding(8.dp))
+               CardPropiedad(prop.titulo, prop.direccion, prop.imagenes[0].urlImagen)
+           }
+
+       }
 
 
 
     }
+}
+
+
+@Composable
+fun CardPropiedad(titulo: String, direccion: String, imagen: String){
+
+    Column(Modifier
+        .fillMaxWidth()
+        .shadow(10.dp, RoundedCornerShape(10.dp))
+        .background(Color.White)
+    ) {
+        Row (Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)),verticalAlignment = Alignment.CenterVertically){
+            Box(){
+
+            }
+            AsyncImage(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .size(125.dp),
+                contentScale = ContentScale.Crop,
+                model = imagen,
+                contentDescription = "Primera imagen de propiedad"
+            )
+            Spacer(Modifier.padding(10.dp))
+            Column(Modifier) {
+                Text(
+                    titulo,
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontFamily = Parkinsans,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.primary
+                );
+
+                Text(
+                    direccion,
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        fontFamily = Parkinsans,
+                        fontWeight = FontWeight.Light
+                    ),
+                    color = MaterialTheme.colorScheme.primary
+                );
+            }
+
+        }
+    }
+
 }
