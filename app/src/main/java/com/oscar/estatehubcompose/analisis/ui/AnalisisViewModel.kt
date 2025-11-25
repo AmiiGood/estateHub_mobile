@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
 import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
 import com.oscar.estatehubcompose.analisis.data.network.response.ParsedGeminiResponse
+import com.oscar.estatehubcompose.analisis.data.network.response.PropiedadesResponse
 import com.oscar.estatehubcompose.analisis.domain.AnalisisUseCase
 import com.oscar.estatehubcompose.analisis.domain.GeminiUseCase
 import com.oscar.estatehubcompose.analisis.domain.geocodificadorUseCase
@@ -28,6 +29,11 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
 
     private var _dataGemini = MutableLiveData<ParsedGeminiResponse?>();
     var dataGemini: LiveData<ParsedGeminiResponse?> = _dataGemini;
+    private var _isGemini = MutableLiveData<Boolean>();
+    var isGemini: LiveData<Boolean> = _isGemini;
+
+    private var _propiedades = MutableLiveData<PropiedadesResponse?>();
+    var propiedades: LiveData<PropiedadesResponse?> = _propiedades;
     private var _latitud = MutableLiveData<Double>();
     private var _longitud = MutableLiveData<Double>();
     private var _codigoPostal = MutableLiveData<Int>();
@@ -62,7 +68,22 @@ class AnalisisViewModel @Inject constructor(private val analisisUseCase: Analisi
     fun analizarGemini(colonia: String, codigoPostal: String, ciudad: String, estado: String, geocodificadorInfo: GeocodificadorInfo?){
         viewModelScope.launch {
             val response = geminiUseCase.invoke(colonia, codigoPostal, ciudad, estado, geocodificadorInfo);
+
+            if (response == null){
+                _isGemini.value = false;
+            }else{
+                _isGemini.value = true;
+            }
+
             _dataGemini.value = response;
+            Log.i("OSCAR", response.toString());
+        }
+    }
+
+    fun getPropiedades(){
+        viewModelScope.launch {
+            val response = analisisUseCase.invoke();
+            _propiedades.value = response;
             Log.i("OSCAR", response.toString());
         }
     }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -93,10 +94,12 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.oscar.estatehubcompose.analisis.Models.GeocodificadorInfo
 import com.oscar.estatehubcompose.analisis.data.network.response.ParsedGeminiResponse
+import com.oscar.estatehubcompose.analisis.data.network.response.PropiedadesResponse
 import com.oscar.estatehubcompose.ui.theme.Parkinsans
 
 @SuppressLint("MissingPermission")
@@ -114,7 +117,10 @@ fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel) {
         position = CameraPosition.fromLatLngZoom(coordenadaInicial, 25f)
     }
 
+    val propiedades by analisisViewModel.propiedades.observeAsState(null);
     LaunchedEffect(Unit) {
+
+        analisisViewModel.getPropiedades();
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             location?.let {
@@ -130,7 +136,7 @@ fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel) {
         }
     }
 
-    Mapa(modifier, cameraPosition, ubicacionDispositivo, context, analisisViewModel)
+    Mapa(modifier, cameraPosition, ubicacionDispositivo, context, analisisViewModel, propiedades)
 }
 
 
@@ -140,7 +146,8 @@ fun Mapa(
     cameraPosition: CameraPositionState,
     ubicacionDispositivo: Location?,
     context: Context,
-    analisisViewModel: AnalisisViewModel
+    analisisViewModel: AnalisisViewModel,
+    propiedades: PropiedadesResponse?
 ) {
 
 
@@ -159,6 +166,8 @@ fun Mapa(
     val placesClient = remember { Places.createClient(context) }
     val data by analisisViewModel.data.observeAsState();
     val dataGemini by analisisViewModel.dataGemini.observeAsState();
+    val isGemini by analisisViewModel.isGemini.observeAsState();
+
 
 
 
@@ -175,6 +184,21 @@ fun Mapa(
                 bottom = 150.dp
             )
         ) {
+
+            propiedades?.data?.forEach {
+
+                val lat = it.latitud.toDoubleOrNull();
+                val long = it.longitud.toDoubleOrNull();
+                if (lat != null && long != null) {
+                    MarkerComposable(
+                        state = MarkerState(position = LatLng(lat, long)),
+                        title = "Precio venta: ${it.precioVenta}",
+                        snippet = "Direccion: ${it.direccion}"){
+                            Icon(Icons.Filled.LocationOn, "Propiedad", tint = MaterialTheme.colorScheme.primary)
+
+                    }
+                }
+            }
 
 
             selectedPlace?.let { place ->
@@ -317,13 +341,17 @@ fun Mapa(
                 .align(Alignment.BottomCenter)
                 .padding(10.dp)
         ) {
-            CardPropiedad(data, dataGemini,analisisViewModel)
+            CardPropiedad(data, dataGemini,isGemini,analisisViewModel, context)
         }
     }
 }
 
 @Composable
-fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,analisisViewModel: AnalisisViewModel) {
+fun CardPropiedad(data: GeocodificadorInfo?,
+                  dataGemini: ParsedGeminiResponse?,
+                  isGemini: Boolean?,
+                  analisisViewModel: AnalisisViewModel,
+                  context: Context) {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -397,7 +425,7 @@ fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,a
         AnimatedVisibility(
             visible = expanded
         ) {
-            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data, dataGemini,analisisViewModel );
+            PropiedadesExpanded(Modifier.animateContentSize().verticalScroll(rememberScrollState()), data, dataGemini,isGemini,analisisViewModel, context );
         }
     }
 
@@ -411,7 +439,12 @@ fun CardPropiedad(data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?,a
 
 
 @Composable
-fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, dataGemini: ParsedGeminiResponse?, analisisViewModel: AnalisisViewModel){
+fun PropiedadesExpanded(modifier:Modifier,
+                        data: GeocodificadorInfo?,
+                        dataGemini: ParsedGeminiResponse?,
+                        isGemini: Boolean?,
+                        analisisViewModel: AnalisisViewModel,
+                        context: Context){
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var expanded2 by rememberSaveable { mutableStateOf(false) }
@@ -523,9 +556,13 @@ fun PropiedadesExpanded(modifier:Modifier, data: GeocodificadorInfo?, dataGemini
 
         Button(
             onClick = {
+                val response = analisisViewModel.analizarGemini(data?.colonia ?: "", data?.codigoPostal ?: "",data?.localidad ?: "", data?.estado ?: "", data);
 
-            analisisViewModel.analizarGemini(data?.colonia ?: "", data?.codigoPostal ?: "",data?.localidad ?: "", data?.estado ?: "", data)
-            expanded2 = true
+                if(isGemini == false){
+                    Toast.makeText(context, "No se pudo analizar", Toast.LENGTH_SHORT).show()
+                }
+
+                expanded2 = true
         },
             Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
