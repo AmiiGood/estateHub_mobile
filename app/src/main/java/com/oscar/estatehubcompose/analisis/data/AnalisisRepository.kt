@@ -7,14 +7,14 @@
     import com.oscar.estatehubcompose.analisis.data.network.request.GeminiRequest
     import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
     import com.oscar.estatehubcompose.analisis.data.network.request.Part
-    import com.oscar.estatehubcompose.analisis.data.network.response.AnalisisResponse
     import com.oscar.estatehubcompose.analisis.data.network.response.GeminiResponse
+    import com.oscar.estatehubcompose.analisis.data.network.response.PropiedadesResponse
     import javax.inject.Inject
 
     class AnalisisRepository @Inject constructor(private val analisisService: AnalisisService){
 
-        suspend fun analizar(analisisRequest: AnalisisRequest): AnalisisResponse? {
-            return analisisService.analizar(analisisRequest);
+        suspend fun analizar(): PropiedadesResponse? {
+            return analisisService.analizar();
         }
 
         suspend fun geocodificar(geocodificadorRequest: GeocodificadorRequest): GeocodificadorInfo? {

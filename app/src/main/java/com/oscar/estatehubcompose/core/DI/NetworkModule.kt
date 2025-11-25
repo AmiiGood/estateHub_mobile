@@ -5,6 +5,7 @@ import com.oscar.estatehubcompose.analisis.data.network.GeminiClient
 import com.oscar.estatehubcompose.citas.data.network.CitaClient
 import com.oscar.estatehubcompose.properties.data.network.PropertyClient
 import com.oscar.estatehubcompose.login.data.network.LoginClient
+import com.oscar.estatehubcompose.perfil.data.network.PerfilClient
 import com.oscar.estatehubcompose.register.data.network.RegisterClient
 import dagger.Module
 import dagger.Provides
@@ -94,6 +95,13 @@ class NetworkModule {
     @Singleton
     fun provideCitaClient(@EstateHubRetrofit retrofit: Retrofit): CitaClient {
         return retrofit.create(CitaClient::class.java)
+    }
+
+
+    @Provides
+    @Singleton
+    fun providePerfilClient(@EstateHubRetrofit retrofit: Retrofit): PerfilClient{
+        return retrofit.create(PerfilClient::class.java)
     }
 };
 

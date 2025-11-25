@@ -76,7 +76,7 @@ fun LoginScreenContainer(modifier: Modifier, loginViewModel: LoginViewModel,navC
 
         isLogged?.let { logged ->
             if (logged) {
-                navController.navigate("home");
+                navController.navigate("mercado");
             } else if(!logged){
                 Toast.makeText(context, "Correo o contraseña incorrectos", Toast.LENGTH_SHORT).show();
             }

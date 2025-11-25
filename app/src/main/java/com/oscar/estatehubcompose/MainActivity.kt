@@ -43,6 +43,8 @@ import com.oscar.estatehubcompose.properties.ui.PropertyViewModel
 import com.oscar.estatehubcompose.analisis.ui.AnalisisViewModel
 import com.oscar.estatehubcompose.login.ui.LoginScreen
 import com.oscar.estatehubcompose.login.ui.LoginViewModel
+import com.oscar.estatehubcompose.perfil.ui.PerfilScreen
+import com.oscar.estatehubcompose.perfil.ui.PerfilViewModel
 import com.oscar.estatehubcompose.properties.ui.PropertyDetailScreen
 import com.oscar.estatehubcompose.properties.ui.PropertyDetailViewModel
 import com.oscar.estatehubcompose.register.ui.RegisterScreen
@@ -59,6 +61,7 @@ class MainActivity : ComponentActivity() {
     private val propertyViewModel: PropertyViewModel by viewModels();
     private val registerViewModel: RegisterViewModel by viewModels();
     private val analisisViewModel: AnalisisViewModel by viewModels();
+    private val perfilViewModel: PerfilViewModel by viewModels();
     val propertyDetailViewModel: PropertyDetailViewModel by viewModels()
     private val apiKey = BuildConfig.API_KEY;
 
@@ -105,9 +108,7 @@ class MainActivity : ComponentActivity() {
             composable("registro"){
                 RegisterScreen(registerViewModel = registerViewModel, navController = navHostController)
             }
-            composable("home"){
-                // HomeScreen(modifier, navController = navHostController)
-            }
+
             composable("mercado"){
                 Property(modifier, propertyViewModel = propertyViewModel, navController = navHostController)
             }
@@ -125,15 +126,19 @@ class MainActivity : ComponentActivity() {
                     navController = navHostController
                 )
             }
+
+            composable("perfil"){
+                PerfilScreen(modifier, perfilViewModel,navHostController)
+            }
         }
     }
 
     @Composable
     fun Navbar(navController: NavController){
         var selectedItem by rememberSaveable { mutableStateOf(0) }
-        val items = listOf("home", "analisis", "mercado","Perfil");
-        val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
-        val unselectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Map, Icons.Filled.AddHome, Icons.Filled.AccountCircle)
+        val items = listOf("mercado","analisis", "Perfil");
+        val selectedIcons = listOf(Icons.Filled.AddHome,Icons.Filled.Map,  Icons.Filled.AccountCircle)
+        val unselectedIcons = listOf(Icons.Filled.AddHome, Icons.Filled.Map, Icons.Filled.AccountCircle)
 
         NavigationBar(modifier = Modifier,
             containerColor = MaterialTheme.colorScheme.primary,
