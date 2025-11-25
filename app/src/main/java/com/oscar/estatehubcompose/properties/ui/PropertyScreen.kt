@@ -294,8 +294,6 @@ fun SearchBar(
 fun CategoryRow(selectedCategory: String, onCategorySelected: (String) -> Unit) {
     val categories = listOf(
         CategoryItem("Todo", Icons.Outlined.Home),
-        CategoryItem("Casas", Icons.Outlined.House),
-        CategoryItem("Cuartos", Icons.Outlined.Apartment),
         CategoryItem("En venta", Icons.Outlined.Sell),
         CategoryItem("En renta", Icons.Outlined.Key)
     )
