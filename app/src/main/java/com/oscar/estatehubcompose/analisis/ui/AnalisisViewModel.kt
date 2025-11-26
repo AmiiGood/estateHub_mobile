@@ -92,7 +92,7 @@ class AnalisisViewModel @Inject constructor(
             cacheTimestamps[cacheKey]?.let { timestamp ->
                 if (now - timestamp < CACHE_DURATION) {
                     geminiCache[cacheKey]?.let { cached ->
-                        Log.i("OSCAR", "✓ Usando caché (${(now - timestamp) / 1000}s antiguo)")
+                        Log.i("OSCAR", "Usando caché (${(now - timestamp) / 1000}s antiguo)")
                         _dataGemini.value = cached
                         _isGemini.value = true
                         _isLoadingGemini.value = false
@@ -114,7 +114,7 @@ class AnalisisViewModel @Inject constructor(
                 _dataGemini.value = response
                 geminiCache[cacheKey] = response
                 cacheTimestamps[cacheKey] = now
-                Log.i("OSCAR", "✓ Respuesta guardada en caché")
+                Log.i("OSCAR", "Respuesta guardada en caché")
             }
         }
     }

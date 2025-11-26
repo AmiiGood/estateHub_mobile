@@ -61,7 +61,7 @@ class AnalisisService @Inject constructor(private val analisisClient: AnalisisCl
                 val response = geminiClient.generateContent(GEMINI_KEY, geminiRequest)
 
                 val duration = System.currentTimeMillis() - startTime
-                Log.i("OSCAR", "✓ Respuesta recibida en ${duration}ms")
+                Log.i("OSCAR", "Respuesta recibida en ${duration}ms")
                 Log.i("OSCAR", "Tokens usados: ${response.usageMetadata?.totalTokenCount}")
 
                 Log.i("OSCAR", "Candidates count: ${response.candidates?.size ?: 0}")
