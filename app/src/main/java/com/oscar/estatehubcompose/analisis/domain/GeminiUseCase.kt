@@ -44,7 +44,7 @@ class GeminiUseCase @Inject constructor(private val analisisRepository: Analisis
             return null
         }
 
-        Log.i("OSCAR", "✓ Texto raw recibido: ${rawText.take(100)}...")
+        Log.i("OSCAR", "Texto raw recibido: ${rawText.take(100)}...")
 
         val cleanResponse = cleanGeminiResponse(rawText)
         Log.i("OSCAR", "Texto limpio: $cleanResponse")
