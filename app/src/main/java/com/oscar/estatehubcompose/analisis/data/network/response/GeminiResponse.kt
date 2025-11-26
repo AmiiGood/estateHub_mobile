@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class GeminiResponse(
     @SerializedName("candidates")
-    val candidates: List<Candidate>,
+    val candidates: List<Candidate>? = null,
 
     @SerializedName("usageMetadata")
     val usageMetadata: UsageMetadata? = null,
@@ -18,7 +18,7 @@ data class GeminiResponse(
 
 data class Candidate(
     @SerializedName("content")
-    val content: Content,
+    val content: Content? = null,
 
     @SerializedName("finishReason")
     val finishReason: String? = null,
@@ -29,7 +29,7 @@ data class Candidate(
 
 data class Content(
     @SerializedName("parts")
-    val parts: List<Part>,
+    val parts: List<Part>? = null,
 
     @SerializedName("role")
     val role: String? = null
@@ -37,7 +37,7 @@ data class Content(
 
 data class Part(
     @SerializedName("text")
-    val text: String
+    val text: String = ""
 )
 
 data class UsageMetadata(

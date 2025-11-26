@@ -5,6 +5,7 @@
     import com.oscar.estatehubcompose.analisis.data.network.request.AnalisisRequest
     import com.oscar.estatehubcompose.analisis.data.network.request.Content
     import com.oscar.estatehubcompose.analisis.data.network.request.GeminiRequest
+    import com.oscar.estatehubcompose.analisis.data.network.request.GenerationConfig
     import com.oscar.estatehubcompose.analisis.data.network.request.GeocodificadorRequest
     import com.oscar.estatehubcompose.analisis.data.network.request.Part
     import com.oscar.estatehubcompose.analisis.data.network.response.GeminiResponse
@@ -143,14 +144,18 @@
       }
     }
 """.trimIndent()
-            val request = GeminiRequest(contents = listOf(
-                Content(
-                    parts = listOf(Part(prompt))
+
+            val request = GeminiRequest(
+                contents = listOf(Content(parts = listOf(Part(prompt)))),
+                generationConfig = GenerationConfig(
+                    temperature = 0.3,
+                    maxOutputTokens = 2048,
+                    topP = 0.9,
+                    topK = 20
                 )
-            ));
+            )
 
-            return analisisService.analizarGemini(request);
-
+            return analisisService.analizarGemini(request)
         }
 
     }
