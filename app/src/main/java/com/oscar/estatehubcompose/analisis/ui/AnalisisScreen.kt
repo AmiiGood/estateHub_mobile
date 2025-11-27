@@ -7,6 +7,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -53,6 +58,7 @@ import androidx.compose.material.icons.filled.TheaterComedy
 import androidx.compose.material.icons.filled.Woman
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -448,6 +454,7 @@ fun PropiedadesExpanded(modifier:Modifier,
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var expanded2 by rememberSaveable { mutableStateOf(false) }
+    val isLoadingGemini by analisisViewModel.isLoadingGemini.observeAsState(false)
 
 
     LaunchedEffect(expanded2) {
@@ -556,38 +563,84 @@ fun PropiedadesExpanded(modifier:Modifier,
 
         Button(
             onClick = {
-                val response = analisisViewModel.analizarGemini(data?.colonia ?: "", data?.codigoPostal ?: "",data?.localidad ?: "", data?.estado ?: "", data);
-
-                if(isGemini == false){
-                    Toast.makeText(context, "No se pudo analizar", Toast.LENGTH_SHORT).show()
-                }
-
+                analisisViewModel.analizarGemini(
+                    data?.colonia ?: "",
+                    data?.codigoPostal ?: "",
+                    data?.localidad ?: "",
+                    data?.estado ?: "",
+                    data
+                )
                 expanded2 = true
-        },
+            },
             Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.secondary
-            ),) {
-            Text("Analizar")
+            ),
+            enabled = !isLoadingGemini
+        ) {
+            if (isLoadingGemini) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(Modifier.padding(8.dp))
+                    Text("Analizando...")
+                }
+            } else {
+                Text("Analizar")
+            }
         }
 
-        AnimatedVisibility(visible = expanded2) {
+        AnimatedVisibility(
+            visible = expanded2,
+            enter = expandVertically(
+                animationSpec = tween(300),
+                expandFrom = Alignment.Top
+            ) + fadeIn(animationSpec = tween(300)),
+            exit = shrinkVertically(
+                animationSpec = tween(300),
+                shrinkTowards = Alignment.Top
+            ) + fadeOut(animationSpec = tween(300))
+        ) {
 
             Column(Modifier.clip(RoundedCornerShape(10.dp))
                 .padding(10.dp)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())) {
 
-                if(dataGemini == null){
-                    Text("Analizando informacion...",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            fontFamily = Parkinsans,
-                            color = MaterialTheme.colorScheme.secondary));
-                }else {
+
+
+                if (isLoadingGemini) {
+                    Column(Modifier.fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.padding(8.dp))
+                        Text(
+                            "Analizando información con IA...",
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = Parkinsans,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        )
+                    }
+                } else if (dataGemini == null) {
+                    if (isGemini == false) {
+                        Text(
+                            "No se pudo analizar la información. Intenta nuevamente.",
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = Parkinsans,
+                                color = Color.Red
+                            )
+                        )
+                    }
+                } else {
                     Text(
                         "Precios promedio:",
                         style = TextStyle(
@@ -596,7 +649,7 @@ fun PropiedadesExpanded(modifier:Modifier,
                             fontFamily = Parkinsans,
                             color = MaterialTheme.colorScheme.primary
                         )
-                    );
+                    )
 
                     //PRECIO PROMEDIO DE COMPRA
                     Atributo2(
@@ -604,14 +657,14 @@ fun PropiedadesExpanded(modifier:Modifier,
                         Icons.Filled.House,
                         color = MaterialTheme.colorScheme.primary,
                         "Casa:",
-                        "$${dataGemini.compra.casa}"
+                        "$${dataGemini?.compra?.casa}"
                     );
                     Atributo2(
                         Modifier,
                         Icons.Filled.Apartment,
                         color = MaterialTheme.colorScheme.primary,
                         "Departamento:",
-                        "$${dataGemini.compra.departamento}"
+                        "$${dataGemini?.compra?.departamento}"
                     );
 
                     Atributo2(
@@ -619,7 +672,7 @@ fun PropiedadesExpanded(modifier:Modifier,
                         Icons.Filled.AddBusiness,
                         color = MaterialTheme.colorScheme.primary,
                         "Local comercial:",
-                        "$${dataGemini.compra.local_comercial}"
+                        "$${dataGemini?.compra?.local_comercial}"
                     );
 
                     //PRECIO PROMEDIO DE RENTA
@@ -639,14 +692,14 @@ fun PropiedadesExpanded(modifier:Modifier,
                         Icons.Filled.House,
                         color = MaterialTheme.colorScheme.primary,
                         "Casa:",
-                        "$${dataGemini.renta.casa}"
+                        "$${dataGemini?.renta?.casa}"
                     );
                     Atributo2(
                         Modifier,
                         Icons.Filled.Apartment,
                         color = MaterialTheme.colorScheme.primary,
                         "Departamento:",
-                        "$${dataGemini.renta.departamento}"
+                        "$${dataGemini?.renta?.departamento}"
                     );
 
                     Atributo2(
@@ -654,7 +707,7 @@ fun PropiedadesExpanded(modifier:Modifier,
                         Icons.Filled.AddBusiness,
                         color = MaterialTheme.colorScheme.primary,
                         "Local comercial:",
-                        "$${dataGemini.renta.local_comercial}"
+                        "$${dataGemini?.renta?.local_comercial}"
                     );
 
                     //Rentabilidad
@@ -681,7 +734,7 @@ fun PropiedadesExpanded(modifier:Modifier,
                         Icons.Filled.House,
                         color = MaterialTheme.colorScheme.primary,
                         "Casa:",
-                        "$${dataGemini.rentabilidad_neta.casa ?: "0.0%"}"
+                        "$${dataGemini?.rentabilidad_neta?.casa ?: "0.0%"}"
                     );
                     Atributo2(
                         Modifier,
@@ -745,7 +798,7 @@ fun PropiedadesExpanded(modifier:Modifier,
                             color = MaterialTheme.colorScheme.primary
                         ));
 
-                    dataGemini.recomendacion_negocio.forEach {
+                    dataGemini?.recomendacion_negocio?.forEach {
 
                         Atributo2(
                             Modifier,

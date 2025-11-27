@@ -10,23 +10,55 @@ import javax.inject.Inject
 
 class GeminiUseCase @Inject constructor(private val analisisRepository: AnalisisRepository) {
 
-    suspend operator fun invoke(colonia: String, codigoPostal: String, ciudad: String, estado: String, geocodificadorInfo: GeocodificadorInfo?): ParsedGeminiResponse?{
-        var response = analisisRepository.geminiAnalizar(colonia, codigoPostal, ciudad, estado, geocodificadorInfo);
+    suspend operator fun invoke(
+        colonia: String,
+        codigoPostal: String,
+        ciudad: String,
+        estado: String,
+        geocodificadorInfo: GeocodificadorInfo?
+    ): ParsedGeminiResponse? {
 
-        val gson = Gson();
-        if(response == null){
+        val response = analisisRepository.geminiAnalizar(colonia, codigoPostal, ciudad, estado, geocodificadorInfo)
+
+        if (response == null) {
+            Log.e("OSCAR", "Response es null")
             return null
         }
 
-        val cleanResponse = cleanGeminiResponse(response.candidates[0].content.parts[0].text);
-        Log.i("OSCAR", cleanResponse);
+        if (response.candidates.isNullOrEmpty()) {
+            Log.e("OSCAR", "Candidates está vacío o null")
+            Log.e("OSCAR", "Response completo: $response")
+            return null
+        }
 
-        val parsedGeminiResponse = gson.fromJson( cleanResponse,
-            ParsedGeminiResponse::class.java)
+        val firstCandidate = response.candidates[0]
+        if (firstCandidate.content?.parts.isNullOrEmpty()) {
+            Log.e("OSCAR", "Content o parts está vacío")
+            Log.e("OSCAR", "Candidate: $firstCandidate")
+            return null
+        }
 
+        val rawText = firstCandidate.content.parts[0].text
+        if (rawText.isBlank()) {
+            Log.e("OSCAR", "Texto está vacío")
+            return null
+        }
 
-        return parsedGeminiResponse;
+        Log.i("OSCAR", "Texto raw recibido: ${rawText.take(100)}...")
 
+        val cleanResponse = cleanGeminiResponse(rawText)
+        Log.i("OSCAR", "Texto limpio: $cleanResponse")
+
+        return try {
+            val gson = Gson()
+            val parsedResponse = gson.fromJson(cleanResponse, ParsedGeminiResponse::class.java)
+            Log.i("OSCAR", "JSON parseado exitosamente")
+            parsedResponse
+        } catch (e: Exception) {
+            Log.e("OSCAR", "Error parseando JSON: ${e.message}")
+            Log.e("OSCAR", "JSON que intentó parsear: $cleanResponse")
+            e.printStackTrace()
+            null
+        }
     }
-
 }
