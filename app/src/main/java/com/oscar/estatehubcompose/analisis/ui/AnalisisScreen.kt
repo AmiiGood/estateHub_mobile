@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -76,6 +77,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -110,7 +112,7 @@ import com.oscar.estatehubcompose.ui.theme.Parkinsans
 
 @SuppressLint("MissingPermission")
 @Composable
-fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel) {
+fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel, onNavigateToPropertyDetail: (Int) -> Unit) {
     val context = LocalContext.current
     var ubicacionDispositivo by remember { mutableStateOf<Location?>(null) }
 
@@ -142,7 +144,7 @@ fun AnalisisScreen(modifier: Modifier, analisisViewModel: AnalisisViewModel) {
         }
     }
 
-    Mapa(modifier, cameraPosition, ubicacionDispositivo, context, analisisViewModel, propiedades)
+    Mapa(modifier, cameraPosition, ubicacionDispositivo, context, analisisViewModel, propiedades, onNavigateToPropertyDetail)
 }
 
 
@@ -153,7 +155,8 @@ fun Mapa(
     ubicacionDispositivo: Location?,
     context: Context,
     analisisViewModel: AnalisisViewModel,
-    propiedades: PropiedadesResponse?
+    propiedades: PropiedadesResponse?,
+    onNavigateToPropertyDetail: (Int) -> Unit
 ) {
 
 
@@ -174,9 +177,10 @@ fun Mapa(
     val dataGemini by analisisViewModel.dataGemini.observeAsState();
     val isGemini by analisisViewModel.isGemini.observeAsState();
 
-
-
-
+    var selectedPropertyId by rememberSaveable { mutableStateOf<Int?>(null) }
+    val selectedProperty = remember(selectedPropertyId) {
+        propiedades?.data?.find { it.idPropiedad == selectedPropertyId }
+    }
 
     Box(modifier.fillMaxSize()) {
         // Mapa
@@ -186,22 +190,66 @@ fun Mapa(
             cameraPositionState = cameraPosition,
             uiSettings = MapUiSettings(myLocationButtonEnabled = true),
             contentPadding = PaddingValues(
-                top = 80.dp,
-                bottom = 150.dp
+                top = 250.dp,
+                bottom = 180.dp
             )
         ) {
 
-            propiedades?.data?.forEach {
+            propiedades?.data?.forEach { propiedad ->
+                val lat = propiedad.latitud.toDoubleOrNull()
+                val long = propiedad.longitud.toDoubleOrNull()
 
-                val lat = it.latitud.toDoubleOrNull();
-                val long = it.longitud.toDoubleOrNull();
                 if (lat != null && long != null) {
                     MarkerComposable(
                         state = MarkerState(position = LatLng(lat, long)),
-                        title = "Precio venta: ${it.precioVenta}",
-                        snippet = "Direccion: ${it.direccion}"){
-                            Icon(Icons.Filled.LocationOn, "Propiedad", tint = MaterialTheme.colorScheme.primary)
+                        onClick = {
+                            // Solo guarda el ID de la propiedad seleccionada
+                            selectedPropertyId = propiedad.idPropiedad
+                            true
+                        }
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .shadow(4.dp, RoundedCornerShape(22.dp))
+                                    .clip(RoundedCornerShape(22.dp))
+                                    .background(
+                                        when(propiedad.estatus) {
+                                            "En venta" -> Color(0xFF4CAF50)
+                                            "En renta" -> Color(0xFF2196F3)
+                                            else -> MaterialTheme.colorScheme.primary
+                                        }
+                                    )
+                                    .border(3.dp, Color.White, RoundedCornerShape(22.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = when(propiedad.tipoPropiedad) {
+                                        "Casa" -> Icons.Filled.House
+                                        "Departamento" -> Icons.Filled.Apartment
+                                        else -> Icons.Filled.LocationCity
+                                    },
+                                    contentDescription = "Propiedad",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
 
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .offset(y = (-6).dp)
+                                    .rotate(45f)
+                                    .background(
+                                        when(propiedad.estatus) {
+                                            "En venta" -> Color(0xFF4CAF50)
+                                            "En renta" -> Color(0xFF2196F3)
+                                            else -> MaterialTheme.colorScheme.primary
+                                        }
+                                    )
+                            )
+                        }
                     }
                 }
             }
@@ -243,7 +291,6 @@ fun Mapa(
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            // TextField de búsqueda
             OutlinedTextField(
                 value = busqueda,
                 //Cada que el tecto cambie se ejecutara buscarLugares que arroja una lista de posibles lugares
@@ -341,7 +388,21 @@ fun Mapa(
             }
         }
 
-        // Card de propiedad en la parte inferior
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .padding(top = 80.dp)
+        ) {
+            PropiedadCardFloating(
+                propiedad = selectedProperty,
+                onNavigateToDetail = onNavigateToPropertyDetail,
+                onClose = {
+                    selectedPropertyId = null
+                }
+            )
+        }
+
         Box(
             Modifier
                 .align(Alignment.BottomCenter)
