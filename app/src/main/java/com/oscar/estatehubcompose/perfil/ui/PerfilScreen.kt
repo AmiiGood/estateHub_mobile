@@ -148,15 +148,13 @@ fun PerfilData(propiedadesResponse: PropiedadesResponse?,
         );
 
 
-       propiedadesResponse?.data?.let {
-
-           it.forEach { prop ->
-
-               Spacer(Modifier.padding(8.dp))
-               CardPropiedad(prop.titulo, prop.direccion, prop.imagenes[0].urlImagen)
-           }
-
-       }
+        propiedadesResponse?.data?.let {
+            it.forEach { prop ->
+                Spacer(Modifier.padding(8.dp))
+                val imagenUrl = prop.imagenes.firstOrNull()?.urlImagen ?: ""
+                CardPropiedad(prop.titulo, prop.direccion, imagenUrl)
+            }
+        }
 
 
 
@@ -166,24 +164,29 @@ fun PerfilData(propiedadesResponse: PropiedadesResponse?,
 
 @Composable
 fun CardPropiedad(titulo: String, direccion: String, imagen: String){
-
     Column(Modifier
         .fillMaxWidth()
         .shadow(10.dp, RoundedCornerShape(10.dp))
         .background(Color.White)
     ) {
         Row (Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)),verticalAlignment = Alignment.CenterVertically){
-            Box(){
-
+            if (imagen.isNotEmpty()) {
+                AsyncImage(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .size(125.dp),
+                    contentScale = ContentScale.Crop,
+                    model = imagen,
+                    contentDescription = "Primera imagen de propiedad"
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .size(125.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
             }
-            AsyncImage(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .size(125.dp),
-                contentScale = ContentScale.Crop,
-                model = imagen,
-                contentDescription = "Primera imagen de propiedad"
-            )
             Spacer(Modifier.padding(10.dp))
             Column(Modifier) {
                 Text(
@@ -194,8 +197,7 @@ fun CardPropiedad(titulo: String, direccion: String, imagen: String){
                         fontWeight = FontWeight.Bold
                     ),
                     color = MaterialTheme.colorScheme.primary
-                );
-
+                )
                 Text(
                     direccion,
                     style = TextStyle(
@@ -204,10 +206,8 @@ fun CardPropiedad(titulo: String, direccion: String, imagen: String){
                         fontWeight = FontWeight.Light
                     ),
                     color = MaterialTheme.colorScheme.primary
-                );
+                )
             }
-
         }
     }
-
 }

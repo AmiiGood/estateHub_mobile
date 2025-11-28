@@ -113,7 +113,9 @@ class MainActivity : ComponentActivity() {
                 Property(modifier, propertyViewModel = propertyViewModel, navController = navHostController)
             }
             composable("analisis"){
-                AnalisisScreen(modifier, analisisViewModel)
+                AnalisisScreen(modifier, analisisViewModel, onNavigateToPropertyDetail = { idPropiedad ->
+                    navHostController.navigate("propertyDetail/$idPropiedad")
+                })
             }
             composable(
                 route = "propertyDetail/{propertyId}",
