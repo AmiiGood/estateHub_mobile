@@ -83,16 +83,27 @@ class AnalisisViewModel @Inject constructor(
         geocodificadorInfo: GeocodificadorInfo?
     ){
         viewModelScope.launch {
-            val cacheKey = "$codigoPostal-$colonia"
+            // Clave más específica que incluye más parámetros únicos
+            val cacheKey = buildString {
+                append("$estado-$ciudad-$codigoPostal-$colonia")
+                geocodificadorInfo?.let {
+                    // Agregar datos demográficos únicos
+                    append("-pop:${it.ponlacionTotal}")
+                    append("-nse:${it.nse}")
+                    append("-emp:${it.empleados}")
+                }
+            }
+
             val now = System.currentTimeMillis()
 
             _isLoadingGemini.value = true
             _dataGemini.value = null
 
+            // Revisar caché
             cacheTimestamps[cacheKey]?.let { timestamp ->
                 if (now - timestamp < CACHE_DURATION) {
                     geminiCache[cacheKey]?.let { cached ->
-                        Log.i("OSCAR", "Usando caché (${(now - timestamp) / 1000}s antiguo)")
+                        Log.i("OSCAR", "Caché encontrado: $cacheKey")
                         _dataGemini.value = cached
                         _isGemini.value = true
                         _isLoadingGemini.value = false
@@ -101,7 +112,7 @@ class AnalisisViewModel @Inject constructor(
                 }
             }
 
-            Log.i("OSCAR", "Realizando nueva consulta a Gemini...")
+            Log.i("OSCAR", "Nueva consulta Gemini: $cacheKey")
             val response = geminiUseCase.invoke(colonia, codigoPostal, ciudad, estado, geocodificadorInfo)
 
             _isLoadingGemini.value = false
@@ -114,7 +125,7 @@ class AnalisisViewModel @Inject constructor(
                 _dataGemini.value = response
                 geminiCache[cacheKey] = response
                 cacheTimestamps[cacheKey] = now
-                Log.i("OSCAR", "Respuesta guardada en caché")
+                Log.i("OSCAR", "Guardado en caché: $cacheKey")
             }
         }
     }

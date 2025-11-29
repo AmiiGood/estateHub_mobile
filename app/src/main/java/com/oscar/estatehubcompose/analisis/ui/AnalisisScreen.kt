@@ -718,14 +718,14 @@ fun PropiedadesExpanded(modifier:Modifier,
                         Icons.Filled.House,
                         color = MaterialTheme.colorScheme.primary,
                         "Casa:",
-                        "$${dataGemini?.compra?.casa}"
+                        "${dataGemini?.compra?.casa}"
                     );
                     Atributo2(
                         Modifier,
                         Icons.Filled.Apartment,
                         color = MaterialTheme.colorScheme.primary,
                         "Departamento:",
-                        "$${dataGemini?.compra?.departamento}"
+                        "${dataGemini?.compra?.departamento}"
                     );
 
                     Atributo2(
@@ -733,7 +733,7 @@ fun PropiedadesExpanded(modifier:Modifier,
                         Icons.Filled.AddBusiness,
                         color = MaterialTheme.colorScheme.primary,
                         "Local comercial:",
-                        "$${dataGemini?.compra?.local_comercial}"
+                        "${dataGemini?.compra?.local_comercial}"
                     );
 
                     //PRECIO PROMEDIO DE RENTA

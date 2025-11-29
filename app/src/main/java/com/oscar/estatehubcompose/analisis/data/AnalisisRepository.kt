@@ -98,60 +98,119 @@
         ): GeminiResponse? {
 
             val prompt = """
-    colonia: $colonia cp: $codigoPostal ciudad: $ciudad estado: $estado
+ANALIZA ESTA UBICACIÓN ESPECÍFICA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Colonia: $colonia
+CP: $codigoPostal
+Ciudad: $ciudad
+Estado: $estado
 
-    info_demografica: ${geocodificadorInfo}
-    INSTRUCCIONES CRÍTICAS:
-    1. Tu respuesta DEBE ser ÚNICAMENTE un objeto JSON válido, sin explicaciones.
-    2. NO uses bloques de código markdown (``````).
-    3. La primera línea debe empezar con { y la última con }.
-    4. Basa los precios en promedios para México en 2025.
+DATOS DEMOGRÁFICOS (USA ESTOS NÚMEROS):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Población total: ${geocodificadorInfo?.ponlacionTotal ?: 0}
+NSE: ${geocodificadorInfo?.nse ?: "No especificado"}
+Empleados: ${geocodificadorInfo?.empleados ?: 0}
+Viviendas habitadas: ${geocodificadorInfo?.viviendas_habitadas ?: 0}
+Hombres: ${geocodificadorInfo?.hombres ?: 0}
+Mujeres: ${geocodificadorInfo?.mujeres ?: 0}
+Población 15-64: ${geocodificadorInfo?.quince_seisCuatro ?: 0}
+Población +60: ${geocodificadorInfo?.mas_sesenta ?: 0}
 
-    TAREA: Genera una estimación de precios y oportunidades de negocio para la ubicación proporcionada.
+NEGOCIOS EXISTENTES EN LA ZONA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Salud: ${geocodificadorInfo?.hospitales_farmacias ?: 0}
+Restaurantes: ${geocodificadorInfo?.restaurantes ?: 0}
+Educación: ${geocodificadorInfo?.educacion ?: 0}
+Financieros: ${geocodificadorInfo?.financiero ?: 0}
+Parques: ${geocodificadorInfo?.parques ?: 0}
+Entretenimiento: ${geocodificadorInfo?.entretenimiento ?: 0}
+Comercios: ${geocodificadorInfo?.negocios ?: 0}
 
-    FORMATO REQUERIDO (responde SOLO esto):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INSTRUCCIONES DE PRECIOS (MUY IMPORTANTE):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CALCULA los precios basándote en:
+
+1. NSE (Nivel Socioeconómico):
+   • A/B (Alto): casas 2,500,000-4,500,000, deptos 1,800,000-3,000,000
+   • C+ (Medio-Alto): casas 1,800,000-2,800,000, deptos 1,200,000-2,000,000
+   • C (Medio): casas 1,200,000-2,000,000, deptos 800,000-1,400,000
+   • C- (Medio-Bajo): casas 800,000-1,500,000, deptos 600,000-1,000,000
+   • D+ (Bajo): casas 500,000-1,000,000, deptos 400,000-800,000
+   • D (Muy Bajo): casas 300,000-700,000, deptos 250,000-500,000
+
+2. Población:
+   • <1,000 habitantes: reduce precios 20%
+   • 1,000-5,000: precios base
+   • 5,000-15,000: aumenta 10%
+   • >15,000: aumenta 20%
+
+3. Rentas = 0.5% al 0.7% del valor de compra mensual
+
+4. Locales comerciales:
+   • Muchos comercios (>20): reduce 15%
+   • Pocos comercios (<10): aumenta 20%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FORMATO DE RESPUESTA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{
+  "compra": {
+    "casa": [NÚMERO calculado según NSE y población],
+    "local_comercial": [NÚMERO calculado según zona comercial],
+    "departamento": [NÚMERO calculado según NSE]
+  },
+  "renta": {
+    "casa": [0.5-0.7% del precio de compra],
+    "local_comercial": [0.6-0.8% del precio],
+    "departamento": [0.5-0.7% del precio]
+  },
+  "recomendacion_negocio": [
     {
-      "compra": {
-        "casa": 3850000,
-        "local_comercial": 4200000,
-        "departamento": 2950000
-      },
-      "renta": {
-        "casa": 22000,
-        "local_comercial": 28000,
-        "departamento": 16500
-      },
-      "recomendacion_negocio": [
-        {
-          "sector": "Comercio de proximidad",
-          "oportunidad": "Mini-supermercado o tienda de conveniencia 24h",
-          "descripcion": "Dada la densidad habitacional inferida y el perfil residencial, existe alta demanda recurrente de insumos básicos sin necesidad de grandes traslados."
-        },
-        {
-          "sector": "Servicios de salud",
-          "oportunidad": "Farmacia con consultorio médico adyacente",
-          "descripcion": "El perfil demográfico sugiere una necesidad constante de servicios de salud de primer contacto, ideal para locales en esquinas o avenidas principales."
-        }
-      ],
-      "rentabilidad_neta": {
-        "local_comercial": "7.5% - 8.5%",
-        "departamento": "5.5% - 6.2%",
-        "casa": "4.8% - 5.5%"
-      },
-      "plusvalia_recomendada": {
-        "tendencia": "Alza moderada sostenida",
-        "aumento_valor_aprox_5_anios": "18% - 22%"
-      }
+      "sector": "Sector basado en los GAPS de negocios existentes",
+      "oportunidad": "Negocio específico que falta en la zona",
+      "descripcion": "MENCIONA los números exactos: población ${geocodificadorInfo?.ponlacionTotal}, empleados ${geocodificadorInfo?.empleados}, número de [tipo de negocio] existentes, etc."
+    },
+    {
+      "sector": "Otro sector diferente",
+      "oportunidad": "Otro negocio necesario",
+      "descripcion": "CITA los datos demográficos reales de esta zona específica"
     }
+  ],
+  "rentabilidad_neta": {
+    "local_comercial": "[5-9%]",
+    "departamento": "[4-7%]",
+    "casa": "[3-6%]"
+  },
+  "plusvalia_recomendada": {
+    "tendencia": "Analiza el desarrollo de ESTA zona específica",
+    "aumento_valor_aprox_5_anios": "[8-25% según potencial]"
+  }
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REGLAS ESTRICTAS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Precios = números enteros únicos (ej: 1250000)
+NO uses rangos, solo UN número promedio
+NO uses comas, puntos ni símbolos en números
+Percentajes como strings (ej: "6.5%")
+DEBES usar los datos demográficos específicos arriba
+Cada recomendación DEBE mencionar números reales
+NO copies valores de ejemplo
+NO uses arrays en precios
+NO uses markdown
 """.trimIndent()
 
             val request = GeminiRequest(
                 contents = listOf(Content(parts = listOf(Part(prompt)))),
                 generationConfig = GenerationConfig(
-                    temperature = 0.3,
+                    temperature = 0.7,
                     maxOutputTokens = 2048,
-                    topP = 0.9,
-                    topK = 20
+                    topP = 0.95,
+                    topK = 40
                 )
             )
 
