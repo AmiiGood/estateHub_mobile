@@ -24,14 +24,10 @@ steps:
     displayName: "Mostrar gradle del módulo (si existe)"
     continueOnError: true
 
-
-  # Si quieres release:
-  # - script: ./gradlew assembleRelease
-  #   displayName: "Compilar APK Release"
-
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '**/*.apk'
       ArtifactName: 'android-build'
       publishLocation: 'Container'
     displayName: "Publicar APK"
+    continueOnError: true
