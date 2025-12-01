@@ -1,0 +1,36 @@
+# Android
+# Build your Android project with Gradle.
+# Add steps that test, sign, and distribute the APK, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/android
+trigger:
+- main
+
+pool:
+  name: Default
+  demands:
+  - Agent.Name -equals ZURI
+
+steps:
+# Instalar Java (si no está instalado ya)
+- task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '17'
+    jdkArchitectureOption: x64
+    jdkSourceOption: PreInstalled
+  displayName: "Asegurar Java 17"
+
+# Dar permisos a Gradle Wrapper
+- script: chmod +x ./gradlew
+  displayName: "Permitir ejecución del Gradle Wrapper"
+
+# Compilar APK
+- script: ./gradlew assembleRelease
+  displayName: "Compilar APK en modo Release"
+
+# Publicar APK generado
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'app/build/outputs/apk/release'
+    ArtifactName: 'android-release'
+    publishLocation: 'Container'
+  displayName: "Publicar APK"
