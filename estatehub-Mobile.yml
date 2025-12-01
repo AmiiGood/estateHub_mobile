@@ -6,19 +6,18 @@ trigger:
 - main
 
 pool:
-  name: Default
-  demands:
-  - Agent.Name -equals ZURI
+  vmImage: 'macos-latest'
 
 steps:
-  - script: java -version
-    displayName: "Verificar versión de Java usada por el agente"
+  - script: ls -la
+    displayName: "Ver archivos"
 
   - script: ./gradlew clean
     displayName: "Limpiar proyecto"
 
   - script: ./gradlew assembleDebug
-    displayName: "Compilar APK Debug"
+    displayName: "Compilar APK (usando SDK de macOS)"
+
 
   # Si quieres release:
   # - script: ./gradlew assembleRelease
