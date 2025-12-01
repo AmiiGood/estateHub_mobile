@@ -11,26 +11,22 @@ pool:
   - Agent.Name -equals ZURI
 
 steps:
-# Instalar Java (si no está instalado ya)
-- task: JavaToolInstaller@0
-  inputs:
-    versionSpec: '17'
-    jdkArchitectureOption: x64
-    jdkSourceOption: PreInstalled
-  displayName: "Asegurar Java 17"
+  - script: java -version
+    displayName: "Verificar versión de Java usada por el agente"
 
-# Dar permisos a Gradle Wrapper
-- script: chmod +x ./gradlew
-  displayName: "Permitir ejecución del Gradle Wrapper"
+  - script: ./gradlew clean
+    displayName: "Limpiar proyecto"
 
-# Compilar APK
-- script: ./gradlew assembleRelease
-  displayName: "Compilar APK en modo Release"
+  - script: ./gradlew assembleDebug
+    displayName: "Compilar APK Debug"
 
-# Publicar APK generado
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: 'app/build/outputs/apk/release'
-    ArtifactName: 'android-release'
-    publishLocation: 'Container'
-  displayName: "Publicar APK"
+  # Si quieres release:
+  # - script: ./gradlew assembleRelease
+  #   displayName: "Compilar APK Release"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '**/*.apk'
+      ArtifactName: 'android-build'
+      publishLocation: 'Container'
+    displayName: "Publicar APK"
